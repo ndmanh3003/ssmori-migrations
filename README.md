@@ -20,7 +20,7 @@
 ├── data
 ├── schemas
 │   ├── jobs
-│   ├── partition
+│   ├── partitions
 │   ├── triggers
 │   ├── indexes
 │   └── tables
@@ -54,7 +54,7 @@ Thư mục chứa định nghĩa và cấu trúc cơ sở dữ liệu:
 - **`indexes.sql`**: Cài đặt các non-clustered index để tối ưu hóa truy vấn.
 - **`jobs/`**: Chứa các file định nghĩa lịch tự động cho cơ sở dữ liệu.
 - **`triggers/`**: Định nghĩa trigger để quản lý tự động hóa trên các bảng.
-- **`partition/`**: Quản lý và định nghĩa phân vùng cho các bảng lớn.
+- **`partitions/`**: Quản lý và định nghĩa phân vùng cho các bảng lớn.
 
 ### `test` 🧪
 
