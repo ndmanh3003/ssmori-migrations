@@ -14,12 +14,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Check commit messages
         run: |
-          commits=$(git log --format=%s -n 10)
+          commits=$(git log --format=%H -n 10) # Lấy hash commit
           for commit in $commits; do
-            if [[ ! "$commit" =~ ^[a-z]+\([a-z]+\):\ .+ ]]; then
-              echo "Commit message does not follow convention: $commit"
+            message=$(git log --format=%s -n 1 $commit)
+            if [[ ! "$message" =~ ^[a-z]+\([a-z]+\):\ .+ ]]; then
+              echo "Commit message does not follow convention: $message"
+              echo "Removing invalid commit..."
+              git reset --hard $commit^ # Lùi lại trước commit vi phạm
               exit 1
             fi
           done
