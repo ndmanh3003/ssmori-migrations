@@ -1,0 +1,25 @@
+name: Check commit message
+
+on:
+  push:
+    branches:
+      - test
+  pull_request:
+    branches:
+      - test
+
+jobs:
+  check-commit-message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Check commit messages
+        run: |
+          commits=$(git log --format=%s -n 10)
+          for commit in $commits; do
+            if [[ ! "$commit" =~ ^[a-z]+\([a-z]+\):\ .+ ]]; then
+              echo "Commit message does not follow convention: $commit"
+              exit 1
+            fi
+          done
