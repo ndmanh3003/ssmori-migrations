@@ -159,11 +159,8 @@ CREATE TABLE BranchDish (
 CREATE TABLE Invoice (
     id					INT IDENTITY PRIMARY KEY,
 
-	-- odering, completed, submited, canceled, accepted, serving, issue, paid
-    -- online: odering, completed, submited, canceled/accepted, serving, issue, paid
-    -- reserve: odering, submited, canceled/accepted
-    -- offline: odering, completed, submited, canceled/accepted, serving, issue, paid
-    status              NVARCHAR(10) NOT NULL,
+	-- odering, confirmed, in_progress, ready, discount_applied, paid, shipped, completed, canceled, waiting
+    status              NVARCHAR(15) NOT NULL,
     orderAt				DATETIME NOT NULL CHECK (orderAt <= GETDATE()),
 
     total				DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (total >= 0),
