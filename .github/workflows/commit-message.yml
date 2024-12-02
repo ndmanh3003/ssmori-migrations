@@ -16,14 +16,28 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Check commit messages
+        id: check_commits
         run: |
-          commits=$(git log --format=%H -n 10) # Lấy hash commit
+          invalid_commits=0
+          commits=$(git log --format=%H --reverse origin/test..HEAD)
+
           for commit in $commits; do
             message=$(git log --format=%s -n 1 $commit)
             if [[ ! "$message" =~ ^[a-z]+\([a-z]+\):\ .+ ]]; then
-              echo "Commit message does not follow convention: $message"
-              echo "Removing invalid commit..."
-              git reset --hard $commit^ # Lùi lại trước commit vi phạm
-              exit 1
+              echo "Invalid commit message: $message"
+              invalid_commits=$((invalid_commits + 1))
             fi
           done
+
+          if [ "$invalid_commits" -gt 0 ]; then
+            echo "Invalid commits found."
+            exit 1
+          fi
+
+      - name: Remove invalid commits and block push
+        if: failure()
+        run: |
+          echo "Resetting to the last valid commit..."
+          git reset --hard $(git merge-base origin/test HEAD)
+          echo "Invalid commits removed. Push is blocked."
+          exit 1
