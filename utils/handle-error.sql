@@ -5,7 +5,7 @@ GO
 CREATE OR ALTER PROCEDURE sp_Validate
     @type NVARCHAR(50),
     @id1 INT,
-    @id2 INT = NULL,xx
+    @id2 INT = NULL,xxdd
     @id3 INT = NULL
 AS
 BEGIN
