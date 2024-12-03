@@ -6,7 +6,7 @@
 - Quản lý thực đơn (menu), đặt hàng (order), và thanh toán.
 - Quản lý nhân sự và các chi nhánh của cửa hàng.
 - Lưu trữ và xử lý dữ liệu hiệu quả bằng các kỹ thuật nâng cao như phân vùng (partitioning), chỉ mục (indexing), và trigger.
-- ...
+- ...daadắdvad
 
 ## 📂 Cấu trúc thư mục
 
