@@ -6,8 +6,8 @@ CREATE OR ALTER PROCEDURE sp_Validate
     @type NVARCHAR(50),
     @id1 INT,
     @id2 INT = NULL,
-    @id3 INT = NULL
-AS
+    @id3 INT = NULLn djs dj
+AScsfsd
 BEGIN
     IF @type = 'branch' AND NOT EXISTS (SELECT 1 FROM Branch WHERE id = @id1)
         THROW 50000, 'ERR_NO_BRANCH', 1;
