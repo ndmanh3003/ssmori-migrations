@@ -7,6 +7,7 @@ CREATE OR ALTER PROCEDURE sp_Validate
     @id1 INT,
     @id2 INT = NULL,
     @id3 INT = NULL fd
+    dlưndknj
 AS
 BEGIN
     IF @type = 'branch' AND NOT EXISTS (SELECT 1 FROM Branch WHERE id = @id1)
