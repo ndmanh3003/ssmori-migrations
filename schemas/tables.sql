@@ -49,7 +49,7 @@ CREATE TABLE Employee (
 
     name				NVARCHAR(100) NOT NULL,
     dob					DATE NOT NULL,
-    gender				TINYINT CHECK (gender IN (0, 1, 2)) NOT NULL, -- 0: male, 1: female, 2: other
+    gender				CHAR(1) CHECK (gender IN ('M', 'F', 'O')) NOT NULL, -- M: Male, F: Female, O: Other
     startAt				DATE NOT NULL,
     endAt				DATE DEFAULT NULL,
 
@@ -82,8 +82,8 @@ CREATE TABLE Customer (
     cid					NVARCHAR(20) UNIQUE NOT NULL,
     phone				VARCHAR(15) UNIQUE NOT NULL,
     email				VARCHAR(100) UNIQUE NOT NULL CHECK(email LIKE '%@%.%'),
-    gender				TINYINT CHECK (gender IN (0, 1, 2)) NOT NULL, -- 0: male, 1: female, 2: other
-    type				TINYINT CHECK (type IN (0, 1, 2)) NOT NULL, -- 0: member, 1: silver, 2: gold
+    gender				CHAR(1) CHECK (gender IN ('M', 'F', 'O')) NOT NULL, -- M: Male, F: Female, O: Other
+    type				CHAR(1) CHECK (type IN ('M', 'S', 'G')) NOT NULL, -- M: Member, S: Silver, G: Gold
     point				INT DEFAULT 0 NOT NULL CHECK(point >= 0),
     upgradeAt			DATE CHECK (upgradeAt <= GETDATE())
 )
@@ -159,20 +159,21 @@ CREATE TABLE BranchDish (
 CREATE TABLE Invoice (
     id					INT IDENTITY PRIMARY KEY,
 
-	-- odering, confirmed, in_progress, ready, discount_applied, paid, shipped, completed, canceled, waiting
     status              NVARCHAR(15) NOT NULL,
     orderAt				DATETIME NOT NULL CHECK (orderAt <= GETDATE()),
 
     total				DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (total >= 0),
-    shipCost			DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (shipCost >= 0),
     dishDiscount		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (dishDiscount >= 0),
+
+    shipCost			DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (shipCost >= 0),
     shipDiscount		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (shipDiscount >= 0),
+
     totalPayment		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (totalPayment >= 0),
 
     customer			INT,
     employee			INT,
     branch				INT NOT NULL,
-    isOnline			BIT DEFAULT 0 NOT NULL,
+    type    			CHAR(1) CHECK (type IN ('R', 'O', 'W')) NOT NULL, -- R: Reserve, O: Online, W: Walk-in
 
     CONSTRAINT FK_Invoice_Customer FOREIGN KEY (customer) REFERENCES Customer(id),
     CONSTRAINT FK_Invoice_Branch FOREIGN KEY (branch) REFERENCES Branch(id),
@@ -205,24 +206,6 @@ CREATE TABLE InvoiceDetail (
     CONSTRAINT FK_InvoiceDetail_Dish FOREIGN KEY (dish) REFERENCES Dish(id)
 )
 
-CREATE TABLE Discount (
-	id					INT IDENTITY PRIMARY KEY,
-
-    name				NVARCHAR(100) NOT NULL,
-    type				TINYINT NOT NULL CHECK (type IN (0, 1, 2, 3)), -- 0: per dish, 1: val dish, 2: per ship, 3: val ship
-    minApply			DECIMAL(10, 2) NOT NULL CHECK (minApply >= 0),
-    startAt				DATE NOT NULL,
-    endAt				DATE,
-	img					VARCHAR(255) NOT NULL,
-
-	valueAll			DECIMAL(10, 2) CHECK (valueAll >= 0),
-	valueMember			DECIMAL(10, 2) CHECK (valueMember >= 0),
-	valueSilver			DECIMAL(10, 2) CHECK (valueSilver >= 0),
-	valueGold			DECIMAL(10, 2) CHECK (valueGold >= 0),
-
-	CONSTRAINT CK_Discount_Dates CHECK (endAt IS NULL OR endAt > startAt)
-)
-
 CREATE TABLE Review (
     invoice				INT PRIMARY KEY,
 
@@ -238,7 +221,15 @@ CREATE TABLE Review (
 CREATE TABLE Const (
     costPerKm			DECIMAL(10, 2) NOT NULL CHECK (costPerKm >= 0),
     freeDistance		INT NOT NULL CHECK (freeDistance >= 0),
-	phone				VARCHAR(15) NOT NULL
+	phone				VARCHAR(15) NOT NULL,
+
+    shipMemberDiscount	INT NOT NULL CHECK (shipMemberDiscount >= 0),
+    shipSilverDiscount	INT NOT NULL CHECK (shipSilverDiscount >= 0),
+    shipGoldDiscount	INT NOT NULL CHECK (shipGoldDiscount >= 0),
+
+    dishMemberDiscount	INT NOT NULL CHECK (dishMemberDiscount >= 0),
+    dishSilverDiscount	INT NOT NULL CHECK (dishSilverDiscount >= 0),
+    dishGoldDiscount	INT NOT NULL CHECK (dishGoldDiscount >= 0),
 )
 
 CREATE TABLE Stream (
@@ -335,9 +326,9 @@ CREATE TABLE StaticsRateBranchDate (
 CREATE TABLE OTP (
     phone			    VARCHAR(15) NOT NULL PRIMARY KEY,
     otp			        VARCHAR(6) NOT NULL,
-    issueAt			    DATETIME NOT NULL, -- 30s for reissue, 3m for expire
+    issueAt			    DATETIME NOT NULL,
     attempt			    TINYINT DEFAULT 0 NOT NULL CHECK (attempt >= 0 AND attempt <= 3),
-    type                TINYINT CHECK (type IN (0, 3)) NOT NULL -- 0: customer, 1: employee, 2: branch, 3: system
+    type                CHAR(1) NOT NULL CHECK (type IN ('E', 'C', 'S', 'B')) -- E: Employee, C: Customer, S: System, B: Branch
 )
 
 ALTER TABLE Branch
