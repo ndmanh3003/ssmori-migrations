@@ -4,7 +4,7 @@ CREATE OR ALTER PROCEDURE sp_CompleteOrder
 AS
 BEGIN
     -- Kiểm tra invoice tồn tại và đang ở trạng thái ordering, nếu là online thì phải có ít nhất 1 món
-    EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'ordering'
+    EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'ordering', @other = 'in_progress'
     EXEC dbo.sp_Validate @type = 'online_has_dish', @id1 = @invoiceId
 
     -- Chuyển trạng thái sang chờ duyệt
