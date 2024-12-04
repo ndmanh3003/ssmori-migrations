@@ -24,7 +24,6 @@
 │   ├── triggers
 │   ├── indexes
 │   └── tables
-├── test
 └── utils
 ```
 
@@ -55,12 +54,6 @@ Thư mục chứa định nghĩa và cấu trúc cơ sở dữ liệu:
 - **`jobs/`**: Chứa các file định nghĩa lịch tự động cho cơ sở dữ liệu.
 - **`triggers/`**: Định nghĩa trigger để quản lý tự động hóa trên các bảng.
 - **`partitions/`**: Quản lý và định nghĩa phân vùng cho các bảng lớn.
-
-### `test` 🧪
-
-Thư mục chứa các file test được chia theo từng đợt:
-
-- Kiểm tra chức năng của các stored procedures, triggers, indexes, và các thay đổi khác.
 
 ### `utils` 🛠️
 
