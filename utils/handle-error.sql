@@ -21,10 +21,10 @@ BEGIN
     IF @type = 'branch_shipping' AND NOT EXISTS (SELECT 1 FROM Branch WHERE id = @id1 AND canShip = 1)
         THROW 50000, 'ERR_CANT_SHIP', 1;
 
-    IF @type = 'invoice_online' AND NOT EXISTS (SELECT 1 FROM Invoice WHERE id = @id1 AND isOnline = 1)
+    IF @type = 'invoice_online' AND NOT EXISTS (SELECT 1 FROM Invoice WHERE id = @id1 AND type = 'O')
         THROW 50000, 'ERR_NOT_ONLINE', 1;
 
-    IF @type = 'invoice_reserve' AND NOT EXISTS (SELECT 1 FROM InvoiceReserve WHERE invoice = @id1)
+    IF @type = 'invoice_reserve' AND NOT EXISTS (SELECT 1 FROM Invoice WHERE id = @id1 AND type = 'R')
         THROW 50000, 'ERR_NO_RESERVE', 1;
 
     IF @type = 'dish' AND NOT EXISTS (SELECT 1 FROM Dish WHERE id = @id1)
@@ -45,7 +45,7 @@ BEGIN
     IF @type = 'discount_active' AND NOT EXISTS (SELECT 1 FROM Discount WHERE id = @id1  AND startAt <= GETDATE() AND (endAt IS NULL OR endAt > GETDATE()))
         THROW 50000, 'ERR_DISCOUNT_NOT_ACTIVE', 1;
 
-    IF @type = 'online_dish' AND NOT EXISTS (SELECT 1 FROM InvoiceDetail WHERE invoice = @id1)
+    IF @type = 'online_has_dish' AND NOT EXISTS (SELECT 1 FROM InvoiceDetail WHERE invoice = @id1)
         IF EXISTS (SELECT 1 FROM InvoiceOnline WHERE invoice = @id1)
             THROW 50000, 'ERR_NO_ONLINE_DISH', 1;
     
@@ -73,7 +73,7 @@ GO
 -- ! Kiểm tra trạng thái của hóa đơn
 CREATE OR ALTER PROCEDURE sp_CheckInvoiceStatus
     @id INT,
-    @status INT
+    @status NVARCHAR(15)
 AS
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM Invoice WHERE id = @id AND status = @status)
