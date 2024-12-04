@@ -1,7 +1,7 @@
 USE SSMORI
 GO
 
--- ! Kiểm tra sự tồn tại của các bản ghi
+-- TODO: Kiểm tra sự tồn tại của các bản ghi
 CREATE OR ALTER PROCEDURE sp_Validate
     @type NVARCHAR(50),
     @id1 INT,
@@ -60,7 +60,7 @@ BEGIN
 END;
 GO
 
--- ! Kiểm tra thời gian đặt phải là thời gian trong tương lai
+-- TODO: Kiểm tra thời gian đặt phải là thời gian trong tương lai
 CREATE OR ALTER PROCEDURE sp_CheckFutureTime
     @time DATETIME
 AS
@@ -70,7 +70,7 @@ BEGIN
 END;
 GO
 
--- ! Kiểm tra trạng thái của hóa đơn
+-- TODO: Kiểm tra trạng thái của hóa đơn
 CREATE OR ALTER PROCEDURE sp_CheckInvoiceStatus
     @id INT,
     @status NVARCHAR(15),
@@ -82,7 +82,7 @@ BEGIN
 END;
 GO
 
--- ! Kiểm tra điều kiện áp dụng khuyến mãi
+-- TODO: Kiểm tra điều kiện áp dụng khuyến mãi
 CREATE OR ALTER PROCEDURE sp_CheckDiscountCondition
     @discountType TINYINT,
     @total DECIMAL(10, 0),
