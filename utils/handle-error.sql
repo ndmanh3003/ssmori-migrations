@@ -1,7 +1,7 @@
 USE SSMORI
 GO
 
--- ! Kiểm tra sự tồn tại của các bản ghi
+-- TODO: Kiểm tra sự tồn tại của các bản ghi
 CREATE OR ALTER PROCEDURE sp_Validate
     @type NVARCHAR(50),
     @id1 INT,
@@ -21,10 +21,10 @@ BEGIN
     IF @type = 'branch_shipping' AND NOT EXISTS (SELECT 1 FROM Branch WHERE id = @id1 AND canShip = 1)
         THROW 50000, 'ERR_CANT_SHIP', 1;
 
-    IF @type = 'invoice_online' AND NOT EXISTS (SELECT 1 FROM Invoice WHERE id = @id1 AND isOnline = 1)
+    IF @type = 'invoice_online' AND NOT EXISTS (SELECT 1 FROM Invoice WHERE id = @id1 AND type = 'O')
         THROW 50000, 'ERR_NOT_ONLINE', 1;
 
-    IF @type = 'invoice_reserve' AND NOT EXISTS (SELECT 1 FROM InvoiceReserve WHERE invoice = @id1)
+    IF @type = 'invoice_reserve' AND NOT EXISTS (SELECT 1 FROM Invoice WHERE id = @id1 AND type = 'R')
         THROW 50000, 'ERR_NO_RESERVE', 1;
 
     IF @type = 'dish' AND NOT EXISTS (SELECT 1 FROM Dish WHERE id = @id1)
@@ -45,7 +45,7 @@ BEGIN
     IF @type = 'discount_active' AND NOT EXISTS (SELECT 1 FROM Discount WHERE id = @id1  AND startAt <= GETDATE() AND (endAt IS NULL OR endAt > GETDATE()))
         THROW 50000, 'ERR_DISCOUNT_NOT_ACTIVE', 1;
 
-    IF @type = 'online_dish' AND NOT EXISTS (SELECT 1 FROM InvoiceDetail WHERE invoice = @id1)
+    IF @type = 'online_has_dish' AND NOT EXISTS (SELECT 1 FROM InvoiceDetail WHERE invoice = @id1)
         IF EXISTS (SELECT 1 FROM InvoiceOnline WHERE invoice = @id1)
             THROW 50000, 'ERR_NO_ONLINE_DISH', 1;
     
@@ -60,7 +60,7 @@ BEGIN
 END;
 GO
 
--- ! Kiểm tra thời gian đặt phải là thời gian trong tương lai
+-- TODO: Kiểm tra thời gian đặt phải là thời gian trong tương lai
 CREATE OR ALTER PROCEDURE sp_CheckFutureTime
     @time DATETIME
 AS
@@ -70,18 +70,19 @@ BEGIN
 END;
 GO
 
--- ! Kiểm tra trạng thái của hóa đơn
+-- TODO: Kiểm tra trạng thái của hóa đơn
 CREATE OR ALTER PROCEDURE sp_CheckInvoiceStatus
     @id INT,
-    @status INT
+    @status NVARCHAR(15),
+    @other NVARCHAR(15) = NULL
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Invoice WHERE id = @id AND status = @status)
+    IF NOT EXISTS (SELECT 1 FROM Invoice WHERE id = @id AND status = @status AND (@other IS NULL OR type = @other))
         THROW 50000, 'ERR_INVALID_STATUS', 1;
 END;
 GO
 
--- ! Kiểm tra điều kiện áp dụng khuyến mãi
+-- TODO: Kiểm tra điều kiện áp dụng khuyến mãi
 CREATE OR ALTER PROCEDURE sp_CheckDiscountCondition
     @discountType TINYINT,
     @total DECIMAL(10, 0),

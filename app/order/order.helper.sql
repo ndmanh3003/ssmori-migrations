@@ -1,7 +1,7 @@
 USE SSMORI
 GO
 
--- ! Tính phí ship dựa trên khoảng cách
+-- TODO: Tính phí ship dựa trên khoảng cách
 CREATE OR ALTER FUNCTION fn_CalculateShipCost(
     @distanceKm INT
 )
@@ -24,7 +24,7 @@ BEGIN
 END
 GO
 
--- ! Cập nhật giá trị hóa đơn
+-- TODO: Cập nhật giá trị hóa đơn
 CREATE OR ALTER PROCEDURE sp_UpdateInvoicePayment
     @invoiceId INT
 AS
@@ -46,26 +46,33 @@ BEGIN
 END
 GO
 
--- ! Cập nhật điểm khách hàng và hạng thẻ
+-- TODO: Cập nhật điểm khách hàng và hạng thẻ
 CREATE OR ALTER PROCEDURE sp_UpdateCustomerPoint
-    @customerId INT,
     @invoiceId INT
 AS
 BEGIN
     DECLARE @currentPoint INT
-    DECLARE @currentType TINYINT
+    DECLARE @currentType CHAR(1)
     DECLARE @upgradeAt DATE
-    DECLARE @newType TINYINT
-    DECLARE @today DATE = GETDATE()
 
-    -- Lấy thông tin khách hàng
+    -- Kiểm tra khách hàng và hóa đơn tồn tại
+    EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
+
+    DECLARE @customerId INT
+    SELECT @customerId = customer
+    FROM Invoice
+    WHERE id = @invoiceId
+
+    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId 
+
+    -- Lấy thông tin điểm và hạng thẻ hiện tại
     SELECT @currentPoint = point, @currentType = type, @upgradeAt = upgradeAt
     FROM Customer
     WHERE id = @customerId
 
     -- Lấy điểm từ hóa đơn
     DECLARE @point INT
-    SELECT @point = CAST(totalPayment/10000 AS INT)
+    SELECT @point = CAST(totalPayment/100000 AS INT)
     FROM Invoice
     WHERE id = @invoiceId
 
@@ -73,86 +80,95 @@ BEGIN
     SET @currentPoint = @currentPoint + @point
 
     -- Xử lý logic dựa trên hạng thẻ hiện tại
-    IF @currentType = 0 -- Membership
-    BEGIN
+    DECLARE @isUpgrade BIT = 0
+    DECLARE @newType CHAR(1) = @currentType
+
+    IF @currentType = 'M'
         IF @currentPoint >= 100 -- Điều kiện lên hạng SILVER
         BEGIN
-            SET @newType = 1
-            UPDATE Customer
-            SET type = @newType, point = @currentPoint, upgradeAt = @today
-            WHERE id = @customerId
+            SET @newType = 'S'
+            SET @isUpgrade = 1
         END
-        ELSE
-        BEGIN
-            -- Cập nhật điểm (giữ nguyên hạng Membership)
-            UPDATE Customer
-            SET point = @currentPoint
-            WHERE id = @customerId
-        END
-    END
-    ELSE IF @currentType = 1 -- Silver
+
+    ELSE IF @currentType = 'S'
     BEGIN
-        -- Kiểm tra tuột hạng
         IF DATEDIFF(YEAR, @upgradeAt, @today) >= 1
         BEGIN
             IF @currentPoint < 50 -- Điều kiện tuột xuống Membership
-            BEGIN
-                SET @newType = 0
-                UPDATE Customer
-                SET type = @newType, point = @currentPoint, upgradeAt = NULL
-                WHERE id = @customerId
-            END
+                SET @newType = 'M'
             ELSE IF @currentPoint >= 100 -- Điều kiện nâng hạng lên Gold
             BEGIN
-                SET @newType = 2
-                UPDATE Customer
-                SET type = @newType, point = @currentPoint, upgradeAt = @today
-                WHERE id = @customerId
+                SET @newType = 'G'
+                SET @isUpgrade = 1
             END
-            ELSE
-            BEGIN
-                -- Giữ hạng Silver, chỉ cập nhật điểm
-                UPDATE Customer
-                SET point = @currentPoint
-                WHERE id = @customerId
-            END
-        END
-        ELSE
-        BEGIN
-            -- Chưa hết thời gian giữ hạng, cập nhật điểm
-            UPDATE Customer
-            SET point = @currentPoint
-            WHERE id = @customerId
         END
     END
-    ELSE IF @currentType = 2 -- Gold
+    
+    ELSE IF @currentType = 'G'
     BEGIN
-        -- Kiểm tra tuột hạng
         IF DATEDIFF(YEAR, @upgradeAt, @today) >= 1
         BEGIN
             IF @currentPoint < 100 -- Điều kiện tuột xuống Silver
-            BEGIN
-                SET @newType = 1
-                UPDATE Customer
-                SET type = @newType, point = @currentPoint, upgradeAt = @today
-                WHERE id = @customerId
-            END
-            ELSE
-            BEGIN
-                -- Giữ hạng Gold, cập nhật thời gian và điểm
-                UPDATE Customer
-                SET point = @currentPoint, upgradeAt = @today
-                WHERE id = @customerId
-            END
-        END
-        ELSE
-        BEGIN
-            -- Chưa hết thời gian giữ hạng, cập nhật điểm
-            UPDATE Customer
-            SET point = @currentPoint
-            WHERE id = @customerId
+                SET @newType = 'S'
         END
     END
+
+    -- Cập nhật điểm và hạng thẻ mới
+    UPDATE Customer
+    SET point = @currentPoint, type = @newType, upgradeAt = CASE WHEN @isUpgrade = 1 THEN @today ELSE @upgradeAt END
+    WHERE id = @customerId
+END
+GO
+
+-- TODO: Áp dụng discount cho hóa đơn
+CREATE OR ALTER PROCEDURE sp_ApplyDiscount
+    @invoiceId INT
+AS
+BEGIN
+
+    -- Kiểm tra khách hàng và hóa đơn tồn tại
+    EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
+
+    DECLARE @customerId INT
+    SELECT @customerId = customer
+    FROM Invoice
+    WHERE id = @invoiceId
+
+    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId 
+
+    -- Lấy thông tin invoice
+    DECLARE @total DECIMAL(10,2), @shipCost DECIMAL(10,2), @customerType TINYINT
+    SELECT @total = total, @shipCost = shipCost, @customerType = c.type
+    FROM Invoice i
+    LEFT JOIN Customer c ON i.customer = c.id
+    WHERE i.id = @invoiceId
+
+    -- Lấy thông tin discount
+    DECLARE @shipDiscount INT, @dishDiscount INT
+
+    SELECT @shipDiscount = CASE 
+        WHEN @customerType = 'M' THEN shipMemberDiscount
+        WHEN @customerType = 'S' THEN shipSilverDiscount
+        WHEN @customerType = 'G' THEN shipGoldDiscount
+        ELSE 0
+    END
+
+    SELECT @dishDiscount = CASE 
+        WHEN @customerType = 'M' THEN dishMemberDiscount
+        WHEN @customerType = 'S' THEN dishSilverDiscount
+        WHEN @customerType = 'G' THEN dishGoldDiscount
+        ELSE 0
+    END
+   
+    -- Áp dụng discount cho món ăn và vận chuyển
+    UPDATE Invoice
+    SET 
+        dishDiscount = @total * @dishDiscount / 100,
+        shipDiscount = @shipCost * @shipDiscount / 100
+    WHERE id = @invoiceId
+	
+	-- Cập nhật lại thông tin thanh toán cho invoice
+    EXEC dbo.sp_UpdateInvoicePayment @invoiceId = @invoiceId
 END
 GO
 
