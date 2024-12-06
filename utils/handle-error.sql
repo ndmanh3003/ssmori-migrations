@@ -9,6 +9,17 @@ CREATE OR ALTER PROCEDURE sp_Validate
     @id3 INT = NULL
 AS
 BEGIN
+	--add
+	IF @type = 'region' AND NOT EXISTS (SELECT 1 FROM Region WHERE id = @id1)
+        THROW 50000, 'ERR_NO_REGION', 1;
+
+	IF @type = 'department' AND NOT EXISTS (SELECT 1 FROM Department WHERE id = @id1)
+        THROW 50000, 'ERR_NO_DEPARTMENT', 1;
+	
+	IF @type = 'employee' AND NOT EXISTS (SELECT 1 FROM Employee WHERE id = @id1)
+        THROW 50000, 'ERR_NO_EMPLOYEE', 1;
+	--end add
+
     IF @type = 'branch' AND NOT EXISTS (SELECT 1 FROM Branch WHERE id = @id1)
         THROW 50000, 'ERR_NO_BRANCH', 1;
 
@@ -39,11 +50,11 @@ BEGIN
     IF @type = 'branch_dish_served' AND NOT EXISTS (SELECT 1 FROM BranchDish WHERE branch = @id1 AND dish = @id2 AND isServed = 1)
         THROW 50000, 'ERR_DISH_NOT_SERVED', 1;
 
-    IF @type = 'discount' AND NOT EXISTS (SELECT 1 FROM Discount WHERE id = @id1)
-        THROW 50000, 'ERR_NO_DISCOUNT', 1;
+    --IF @type = 'discount' AND NOT EXISTS (SELECT 1 FROM Discount WHERE id = @id1)
+    --    THROW 50000, 'ERR_NO_DISCOUNT', 1;
     
-    IF @type = 'discount_active' AND NOT EXISTS (SELECT 1 FROM Discount WHERE id = @id1  AND startAt <= GETDATE() AND (endAt IS NULL OR endAt > GETDATE()))
-        THROW 50000, 'ERR_DISCOUNT_NOT_ACTIVE', 1;
+    --IF @type = 'discount_active' AND NOT EXISTS (SELECT 1 FROM Discount WHERE id = @id1  AND startAt <= GETDATE() AND (endAt IS NULL OR endAt > GETDATE()))
+    --    THROW 50000, 'ERR_DISCOUNT_NOT_ACTIVE', 1;
 
     IF @type = 'online_has_dish' AND NOT EXISTS (SELECT 1 FROM InvoiceDetail WHERE invoice = @id1)
         IF EXISTS (SELECT 1 FROM InvoiceOnline WHERE invoice = @id1)
@@ -60,6 +71,23 @@ BEGIN
 END;
 GO
 
+CREATE OR ALTER PROC sp_ValidateUnique 
+    @type NVARCHAR(50), 
+    @unique NVARCHAR(100) 
+AS
+BEGIN
+
+    IF @type = 'name' AND EXISTS (SELECT 1 FROM Branch WHERE name = @unique)
+        THROW 50000, 'ERR_EXISTS_NAME', 1;
+
+    IF @type = 'address' AND EXISTS (SELECT 1 FROM Branch WHERE address = @unique)
+        THROW 50000, 'ERR_EXISTS_ADDRESS', 1;
+
+    IF @type = 'phone' AND EXISTS (SELECT 1 FROM Branch WHERE phone = @unique)
+        THROW 50000, 'ERR_EXISTS_PHONE', 1;
+END;
+GO
+
 -- TODO: Kiểm tra thời gian đặt phải là thời gian trong tương lai
 CREATE OR ALTER PROCEDURE sp_CheckFutureTime
     @time DATETIME
@@ -67,6 +95,22 @@ AS
 BEGIN
     IF @time <= GETDATE()
         THROW 50000, 'ERR_INVALID_TIME', 1;
+END;
+GO
+
+CREATE OR ALTER PROC sp_ValidateUnique 
+    @type NVARCHAR(50), 
+    @unique NVARCHAR(100) 
+AS
+BEGIN
+    IF @type = 'name' AND EXISTS (SELECT 1 FROM Branch WHERE name = @unique)
+        THROW 50000, 'ERR_EXISTS_NAME', 1;
+
+    IF @type = 'address' AND EXISTS (SELECT 1 FROM Branch WHERE address = @unique)
+        THROW 50000, 'ERR_EXISTS_ADDRESS', 1;
+
+    IF @type = 'phone' AND EXISTS (SELECT 1 FROM Branch WHERE phone = @unique)
+        THROW 50000, 'ERR_EXISTS_PHONE', 1;
 END;
 GO
 
