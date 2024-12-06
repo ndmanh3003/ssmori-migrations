@@ -43,21 +43,8 @@ select * from region
 EXEC sp_DeleteRegion @regionId = 4
 --ERR_NO_REGION, OK
 
-EXEC sp_DeleteRegion @regionId = 6
+EXEC sp_DeleteRegion @regionId = 5
 
-EXEC sp_CreateBranch 
-    @name = 'Branch test',
-    @address = '123 sf St',
-    @openTime = '08:00',
-    @closeTime = '22:00',
-    @phone = '2564',
-    @hasMotoPark = 1,
-    @hasCarPark = 1,
-    @tableQuantity = 10,
-    @floorQuantity = 2,
-    @canShip = 1,
-    @regionId = 6;
---OK
 --======================================================================
 --sp_CreateBranch: OK
 EXEC sp_CreateBranch 
@@ -89,8 +76,20 @@ EXEC sp_UpdateBranch
     @floorQuantity = 3,
     @canShip = 0,
     @regionId = 2;
---ERR_NO_BRANCH, OK
-delete from BranchTable
+--OK
+
+EXEC sp_CreateBranch 
+    @name = 'Branch D',
+    @address = '123 Main S',
+    @openTime = '08:00',
+    @closeTime = '22:00',
+    @phone = '123',
+    @hasMotoPark = 1,
+    @hasCarPark = 1,
+    @tableQuantity = 10,
+    @floorQuantity = 2,
+    @canShip = 1,
+    @regionId = 1;
 
 EXEC sp_UpdateBranch 
     @branchId = 2,
@@ -126,7 +125,7 @@ EXEC sp_DeleteBranch @branchId = 6
 --OK
 
 EXEC sp_DeleteBranch @branchId = 5
---ERR_NO_BRANCH, OK
+--OK
 
 --======================================================================
 --sp_CreateDepartment: OK
@@ -272,3 +271,4 @@ JOIN
     sys.columns c2 ON fkc.referenced_column_id = c2.column_id AND c2.object_id = ref.object_id
 WHERE 
     tp.name = 'WorkHistory';  -- Thay 'YourTableName' bằng tên bảng của bạn
+
