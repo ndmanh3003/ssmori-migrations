@@ -9,7 +9,7 @@ AS PARTITION pfInvoiceDate TO ([PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIM
 GO
 
 -- Tạo unique clustered index mới và ánh xạ Partition Scheme
-CREATE UNIQUE CLUSTERED INDEX IX_Invoice_Clustered
-ON Invoice (InvoiceNumber, orderAt)
+CREATE UNIQUE NONCLUSTERED INDEX IX_Invoice_Clustered
+ON Invoice (id, orderAt)
 ON psInvoiceDate(orderAt);
 GO
