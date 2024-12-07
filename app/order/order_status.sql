@@ -3,12 +3,13 @@ CREATE OR ALTER PROCEDURE sp_CompleteOrder
     @invoiceId INT
 AS
 BEGIN
-    -- Kiểm tra invoice tồn tại và đang ở trạng thái ordering, nếu là online thì phải có ít nhất 1 món
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'ordering', @other = 'in_progress'
     EXEC dbo.sp_Validate @type = 'online_has_dish', @id1 = @invoiceId
 
-    -- Chuyển trạng thái sang chờ duyệt
+    -- Chuyển trạng thái sang hoàn thành
     UPDATE Invoice SET status = 'completed' WHERE id = @invoiceId
+
+    EXEC dbo.sp_ApplyDiscount @invoiceId = @invoiceId
 END
 GO
 
@@ -17,7 +18,6 @@ CREATE OR ALTER PROCEDURE sp_SubmitOrder
     @invoiceId INT
 AS
 BEGIN
-    -- Kiểm tra invoice tồn tại và đang ở trạng thái ordering
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'completed'
 
     -- Chuyển trạng thái sang chờ duyệt
@@ -31,7 +31,6 @@ CREATE OR ALTER PROCEDURE sp_CancelOrder
     @employeeId INT
 AS
 BEGIN
-    -- Kiểm tra invoice tồn tại và đang ở trạng thái submited, employee tồn tại
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'submited'
     EXEC dbo.sp_Validate @type = 'employee', @id1 = @employeeId
 
@@ -46,7 +45,6 @@ CREATE OR ALTER PROCEDURE sp_WaitingOrder
     @employeeId INT
 AS
 BEGIN
-    -- Kiểm tra invoice tồn tại và đang ở trạng thái submited, employee tồn tại, đơn là đơn reserve
     EXEC dbo.sp_Validate @type = 'invoice_reserve', @id1 = @invoiceId
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'submited'
     EXEC dbo.sp_Validate @type = 'employee', @id1 = @employeeId
@@ -61,7 +59,6 @@ CREATE OR ALTER PROCEDURE sp_IssueInvoice
     @invoiceId INT
 AS
 BEGIN
-    -- Kiểm tra invoice tồn tại và đang ở trạng thái completed
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'completed'
 
     -- Chuyển trạng thái sang chờ thanh toán

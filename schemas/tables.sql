@@ -1,16 +1,3 @@
-USE MASTER
-GO
-
-IF DB_ID('SSMORI') IS NOT NULL
-DROP DATABASE SSMORI
-GO
-CREATE DATABASE SSMORI
-GO 
-
---NẾU PARTITION THÌ BỎ HẾT MẤY CÁI TRÊN
-USE SSMORI
-GO
-
 CREATE TABLE Region (
     id					INT IDENTITY PRIMARY KEY,
 
@@ -187,7 +174,6 @@ CREATE TABLE Invoice (
 -- PARTITION
 -- ON psInvoiceDate(orderAt);
 
-
 CREATE TABLE BranchTable (
     branch				INT NOT NULL,
     tbl					INT NOT NULL,
@@ -211,8 +197,6 @@ CREATE TABLE InvoiceDetail (
     CONSTRAINT FK_InvoiceDetail_Invoice FOREIGN KEY (invoice) REFERENCES Invoice(id),
     CONSTRAINT FK_InvoiceDetail_Dish FOREIGN KEY (dish) REFERENCES Dish(id)
 )
--- PARTITION
--- ON psInvoiceDate(invoice);
 
 CREATE TABLE Review (
     invoice				INT PRIMARY KEY,

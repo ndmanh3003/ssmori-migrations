@@ -5,21 +5,14 @@ CREATE OR ALTER PROCEDURE sp_ManageOrderDetail
     @quantity INT
 AS
 BEGIN
-    -- Kiểm tra invoice, dish tồn tại
     EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
-
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId
+    IF @type = 'O'
+        EXEC dbo.sp_Validate @type = 'dish_shipping', @id1 = @dishId
 
     -- Lấy thông tin đơn hàng
     DECLARE @type CHAR(1), @branchId INT
-
-    SELECT @type = type, @branchId = branch
-    FROM Invoice 
-    WHERE id = @invoiceId
-
-    -- Kiểm tra đơn online thì dish có thể ship và dish được phục vụ ở branch này
-    IF @type = 'O'
-        EXEC dbo.sp_Validate @type = 'dish_shipping', @id1 = @dishId
+    SELECT @type = type, @branchId = branch FROM Invoice WHERE id = @invoiceId
 
     EXEC dbo.sp_Validate @type = 'branch_dish_served', @id1 = @branchId, @id2 = @dishId
 

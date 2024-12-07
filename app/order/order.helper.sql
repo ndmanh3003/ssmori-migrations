@@ -1,6 +1,3 @@
-USE SSMORI
-GO
-
 -- TODO: Tính phí ship dựa trên khoảng cách
 CREATE OR ALTER FUNCTION fn_CalculateShipCost(
     @distanceKm INT
@@ -13,8 +10,7 @@ BEGIN
     DECLARE @costPerKm DECIMAL(10,2)
 
     -- Lấy các thông số từ bảng Const
-    SELECT @freeDistance = freeDistance, @costPerKm = costPerKm
-    FROM Const
+    SELECT @freeDistance = freeDistance, @costPerKm = costPerKm FROM Const
 
     -- Nếu vượt quá khoảng cách miễn phí thì tính phí
     IF @distanceKm > @freeDistance
@@ -51,30 +47,24 @@ CREATE OR ALTER PROCEDURE sp_UpdateCustomerPoint
     @invoiceId INT
 AS
 BEGIN
+    EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
+
     DECLARE @currentPoint INT
     DECLARE @currentType CHAR(1)
     DECLARE @upgradeAt DATE
 
-    -- Kiểm tra khách hàng và hóa đơn tồn tại
-    EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
-
+    -- Lấy thông tin khách hàng
     DECLARE @customerId INT
-    SELECT @customerId = customer
-    FROM Invoice
-    WHERE id = @invoiceId
+    SELECT @customerId = customer FROM Invoice WHERE id = @invoiceId
 
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId 
 
     -- Lấy thông tin điểm và hạng thẻ hiện tại
-    SELECT @currentPoint = point, @currentType = type, @upgradeAt = upgradeAt
-    FROM Customer
-    WHERE id = @customerId
+    SELECT @currentPoint = point, @currentType = type, @upgradeAt = upgradeAt FROM Customer WHERE id = @customerId
 
     -- Lấy điểm từ hóa đơn
     DECLARE @point INT
-    SELECT @point = CAST(totalPayment/100000 AS INT)
-    FROM Invoice
-    WHERE id = @invoiceId
+    SELECT @point = CAST(totalPayment/100000 AS INT) FROM Invoice WHERE id = @invoiceId
 
     -- Tính điểm mới
     SET @currentPoint = @currentPoint + @point
@@ -125,14 +115,12 @@ CREATE OR ALTER PROCEDURE sp_ApplyDiscount
     @invoiceId INT
 AS
 BEGIN
-
-    -- Kiểm tra khách hàng và hóa đơn tồn tại
     EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
+    EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'completed'
 
+    -- Lấy thông tin khách hàng
     DECLARE @customerId INT
-    SELECT @customerId = customer
-    FROM Invoice
-    WHERE id = @invoiceId
+    SELECT @customerId = customer FROM Invoice WHERE id = @invoiceId
 
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId 
 

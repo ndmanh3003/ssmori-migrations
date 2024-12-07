@@ -8,17 +8,13 @@ CREATE OR ALTER PROCEDURE sp_CreateReview
     @comment NVARCHAR(255)
 AS
 BEGIN
-    -- Kiểm tra invoice tồn tại và đã thanh toán, và chưa đánh giá
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'paid'
-
     EXEC dbo.sp_Validate @type = 'no_review', @id1 = @invoiceId
 
     -- Lấy thông tin invoice
     DECLARE @branchId INT, @employeeId INT
     
-    SELECT @branchId = branch, @employeeId = employee
-    FROM Invoice
-    WHERE id = @invoiceId
+    SELECT @branchId = branch, @employeeId = employee FROM Invoice WHERE id = @invoiceId
 
     -- Tạo đánh giá
     INSERT INTO Review (invoice, service, quality, price, location, comment)

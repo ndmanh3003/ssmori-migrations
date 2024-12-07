@@ -1,6 +1,4 @@
-USE SSMORI
-GO
-
+-- TODO: Thêm món ăn
 CREATE OR ALTER PROCEDURE sp_CreateDish
     @isCombo BIT = 0,          
     @nameVN NVARCHAR(100),     
@@ -11,22 +9,16 @@ CREATE OR ALTER PROCEDURE sp_CreateDish
     @img NVARCHAR(255) = NULL  
 AS
 BEGIN
-    -- Kiểm tra tính duy nhất của tên món ăn (tiếng Việt và tiếng Nhật)
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameVN', @unique = @nameVN;
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameJP', @unique = @nameJP;
 
     -- Thêm món ăn mới vào bảng Dish
     INSERT INTO Dish (isCombo, nameVN, nameJP, description, price, canShip, img)
     VALUES (@isCombo, @nameVN, @nameJP, @description, @price, @canShip, @img);
-
-    -- Lấy ID của món ăn vừa tạo
-    DECLARE @dishId INT = SCOPE_IDENTITY();
-
-    -- Trả về ID của món ăn vừa tạo
-    RETURN @dishId;
 END
 GO
 
+-- TODO: Cập nhật thông tin món ăn
 CREATE OR ALTER PROCEDURE sp_UpdateDish
     @dishId INT,              
     @isCombo BIT = NULL,      
@@ -38,10 +30,7 @@ CREATE OR ALTER PROCEDURE sp_UpdateDish
     @img NVARCHAR(255) = NULL 
 AS
 BEGIN
-    -- Kiểm tra món ăn có tồn tại không
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
-
-    -- Kiểm tra tính duy nhất của tên món ăn (tiếng Việt và tiếng Nhật)
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameVN', @unique = @nameVN;
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameJP', @unique = @nameJP;
 
@@ -56,27 +45,21 @@ BEGIN
         canShip = COALESCE(@canShip, canShip),
         img = COALESCE(@img, img)
     WHERE id = @dishId;
-
-    -- Trả về thông báo thành công
-    RETURN 1;
 END
 GO
 
+-- TODO: Xóa món ăn
 CREATE OR ALTER PROCEDURE sp_DeleteDish
     @dishId INT
 AS
 BEGIN
-    -- Kiểm tra món ăn có tồn tại không
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
+
+    -- TODO: Xóa các table liên quan
 
     -- Đánh dấu đã xóa món ăn
     UPDATE Dish
     SET isDeleted = 1
     WHERE id = @dishId;
-
-
-    -- Trả về thông báo thành công
-    RETURN 1;
 END
 GO
-

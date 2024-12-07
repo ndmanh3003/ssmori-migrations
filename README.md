@@ -22,9 +22,10 @@
 │   ├── jobs
 │   ├── partitions
 │   ├── triggers
-│   ├── indexes
-│   └── tables
-└── utils
+│   ├── indexes.sql
+│   └── tables.sql
+├── handle_error
+└── init.sql
 ```
 
 ## 📋 Chi tiết từng thư mục
@@ -55,9 +56,10 @@ Thư mục chứa định nghĩa và cấu trúc cơ sở dữ liệu:
 - **`triggers/`**: Định nghĩa trigger để quản lý tự động hóa trên các bảng.
 - **`partitions/`**: Quản lý và định nghĩa phân vùng cho các bảng lớn.
 
-### `utils` 🛠️
+### `handle_error` 🛠️
 
-Thư mục chứa các tiện ích và xử lý chung:
+Thư mục chứa các hàm kiểm tra và xử lý lỗi trong hệ thống:
 
-- Các function hỗ trợ thường dùng trong cơ sở dữ liệu.
-- Các stored procedures phục vụ cho các nghiệp vụ không thuộc module cụ thể.
+- Kiểm tra tính hợp lệ của dữ liệu.
+- Kiểm tra tính hợp lý của dữ liệu, phát hiện và xử lý các lỗi logic hoặc bất thường.
+- Đảm bảo tính duy nhất của các bản ghi trong bảng dữ liệu.

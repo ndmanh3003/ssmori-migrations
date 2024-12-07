@@ -4,20 +4,13 @@ CREATE OR ALTER PROCEDURE sp_ConfirmPayment
     @tbl INT
 AS
 BEGIN
-    -- Kiểm tra hóa đơn tồn tại và đã xuất hóa đơn
     EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'ready'
 
     -- Lấy thông tin invoice
     DECLARE @total DECIMAL(10,2), @branchId INT
-
-    SELECT 
-        @total = totalPayment,
-        @branchId = branch
-    FROM Invoice 
-    WHERE id = @invoiceId
+    SELECT @total = totalPayment, @branchId = branch FROM Invoice WHERE id = @invoiceId
     
-    -- Kiểm tra bàn có đang phục vụ đúng invoice này không
     EXEC dbo.sp_Validate @type = 'table_invoice', @id1 = @branchId, @id2 = @tbl, @id3 = @invoiceId
 
     -- Cập nhật thống kê doanh thu theo ngày

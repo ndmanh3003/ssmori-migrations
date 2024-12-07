@@ -8,13 +8,10 @@ CREATE OR ALTER PROCEDURE sp_CreateReserveOrder
     @invoiceId INT OUTPUT
 AS
 BEGIN
-    -- Kiểm tra branch và customer tồn tại, thời gian đặt phải trong tương lai
     EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
-
+    EXEC dbo.sp_CheckFutureTime @time = @bookingAt
     IF @customerId IS NOT NULL
         EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
-
-    EXEC dbo.sp_CheckFutureTime @time = @bookingAt
 
     -- Tạo invoice mới
     INSERT INTO Invoice (status, orderAt, customer, branch, type)
@@ -36,10 +33,8 @@ CREATE OR ALTER PROCEDURE sp_UpdateReserveOrder
     @phone VARCHAR(15) = NULL
 AS
 BEGIN
-    -- Kiểm tra invoice tồn tại và là đơn đặt bàn, thời gian đặt phải trong tương lai
     EXEC dbo.sp_Validate @type = 'invoice_reserve', @id1 = @invoiceId
-
-    IF @bookingAt IS NOT NULL
+    IF @bookingAt IS NOT NULL 
         EXEC dbo.sp_CheckFutureTime @time = @bookingAt
 
     -- Cập nhật thông tin đặt bàn

@@ -5,15 +5,12 @@ CREATE OR ALTER PROCEDURE sp_AssignOrder2Table
     @employeeId INT = NULL
 AS
 BEGIN
-    -- Kiểm tra employee tồn tại
     EXEC dbo.sp_Validate @type = 'employee', @id1 = @employeeId
 
     -- Lấy branch từ employee
     DECLARE @branchId INT
-
     SELECT @branchId = branch FROM Employee WHERE id = @employeeId
 
-    -- Kiểm tra bàn có trống không
     EXEC dbo.sp_Validate @type = 'table_empty', @id1 = @branchId, @id2 = @tbl
 
     -- Nếu không có invoice thì tạo mới

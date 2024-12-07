@@ -8,14 +8,13 @@ CREATE OR ALTER PROCEDURE sp_CreateOnlineOrder
     @invoiceId INT OUTPUT
 AS
 BEGIN
-    -- Kiểm tra branch tồn tại và hỗ trợ ship, customer tồn tại
     EXEC dbo.sp_Validate @type = 'branch_shipping', @id1 = @branchId
-
     IF @customerId IS NOT NULL
         EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
     -- Tính phí ship và tạo invoice mới
-    DECLARE @shipCost DECIMAL(10,2) = dbo.fn_CalculateShipCost(@distanceKm)
+    DECLARE @shipCost DECIMAL(10,2) 
+    SET @shipCost = dbo.fn_CalculateShipCost(@distanceKm)
 
     INSERT INTO Invoice (status, orderAt, customer, branch, isOnline, shipCost)
     VALUES (0, GETDATE(), @customerId, @branchId, 'O', @shipCost)
@@ -38,7 +37,6 @@ CREATE OR ALTER PROCEDURE sp_UpdateOnlineOrder
     @distanceKm INT = NULL
 AS
 BEGIN
-    -- Kiểm tra invoice tồn tại và là đơn online
     EXEC dbo.sp_Validate @type = 'invoice_online', @id1 = @invoiceId
 
     -- Cập nhật thông tin giao hàng
@@ -51,7 +49,8 @@ BEGIN
     -- Cập nhật phí ship nếu có thay đổi khoảng cách
     IF @distanceKm IS NOT NULL
     BEGIN
-        DECLARE @shipCost DECIMAL(10,2) = dbo.fn_CalculateShipCost(@distanceKm)
+        DECLARE @shipCost DECIMAL(10,2)
+        SET @shipCost = dbo.fn_CalculateShipCost(@distanceKm)
 
         UPDATE Invoice 
         SET shipCost = @shipCost

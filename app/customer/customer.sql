@@ -1,86 +1,57 @@
-USE SSMORI
-GO
-
+-- TODO: Tạo thẻ khách hàng mới
 CREATE OR ALTER PROCEDURE sp_CreateCustomerCard
     @employeeId INT,
     @customerId INT
 AS
 BEGIN
-    -- Kiểm tra sự tồn tại của nhân viên
     EXEC dbo.sp_Validate @type = 'employee', @id1 = @employeeId
-
-    -- Kiểm tra sự tồn tại của khách hàng
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
-    -- Không sử dụng sp_CloseCustomerCard !!!!!!!!!!!!!!
-    UPDATE Card
-    SET isClosed = 1
-    WHERE customer = @customerId
+    -- Đóng thẻ cũ của khách hàng (nếu có)
+    EXEC dbo.sp_CloseCustomerCard @customerId = @customerId
 
     -- Tạo thẻ cho khách hàng
     INSERT INTO Card (issueAt, isClosed, employee, customer)
     VALUES (GETDATE(), 0, @employeeId, @customerId)
-
-    -- Lấy ID thẻ vừa tạo
-    DECLARE @cardId INT = SCOPE_IDENTITY()
-
-    -- Trả về ID của thẻ vừa tạo
-    RETURN @cardId
 END
 GO
 
-
+-- TODO: Đóng thẻ khách hàng
 CREATE OR ALTER PROCEDURE sp_CloseCustomerCard
-    @cardId INT
+    @customerId INT
 AS
 BEGIN
-    -- Kiểm tra thẻ có tồn tại không
-    EXEC dbo.sp_Validate @type = 'card', @id1 = @cardId
+    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
-    -- Cập nhật trạng thái thẻ là "closed"
+    -- Đóng thẻ của khách hàng
     UPDATE Card
     SET isClosed = 1
-    WHERE id = @cardId
-
-    -- Trả về thông báo đóng thành công
-    RETURN 1
+    WHERE customer = @customerId
 END
 GO
 
+-- TODO: Thêm khách hàng mới
 CREATE OR ALTER PROCEDURE sp_CreateCustomer
     @name NVARCHAR(100),
     @cid NVARCHAR(20),
     @phone VARCHAR(15),
     @email VARCHAR(100),
-    @gender CHAR(1), -- M: Male, F: Female, O: Other
-    @upgradeAt DATE = NULL, -- Default to NULL if not provided
-    @employeeId INT   -- ID của nhân viên tạo thẻ
+    @gender CHAR(1),
+    @employeeId INT
 AS
 BEGIN
-    -- Kiểm tra căn cước đã tồn tại trong hệ thống
     EXEC dbo.sp_ValidateUnique @type = 'customer_cid', @unique = @cid
- 
-    -- Kiểm tra số điện thoại đã tồn tại trong hệ thống
     EXEC dbo.sp_ValidateUnique @type = 'customer_phone', @unique = @phone
-
-    -- Kiểm tra email đã tồn tại trong hệ thống
     EXEC dbo.sp_ValidateUnique @type = 'customer_email', @unique = @email
-   
-    
-    IF(@upgradeAt IS NULL)
-        SET @upgradeAt = GETDATE()
+    EXEC dbo.sp_Validate @type = 'employee', @id1 = @employeeId
 
-    -- Thêm khách hàng mới vào bảng Customer
+    -- Thêm khách hàng mới
     INSERT INTO Customer (name, cid, phone, email, gender, type, point, upgradeAt)
-    VALUES (@name, @cid, @phone, @email, @gender, 'M', 0, @upgradeAt)
-
-    -- Lấy ID khách hàng vừa tạo
-    DECLARE @customerId INT = SCOPE_IDENTITY()
-
-    RETURN EXEC sp_CreateCustomerCard @employeeId = @employeeId, @customerId = @customerId
+    VALUES (@name, @cid, @phone, @email, @gender, 'M', 0, GETDATE())
 END
 GO
 
+-- TODO: Cập nhật thông tin khách hàng
 CREATE OR ALTER PROCEDURE sp_UpdateCustomer
     @customerId INT,              
     @name NVARCHAR(100) = NULL,   
@@ -90,16 +61,9 @@ CREATE OR ALTER PROCEDURE sp_UpdateCustomer
     @gender CHAR(1) = NULL        
 AS
 BEGIN
-    -- Kiểm tra khách hàng có tồn tại
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId;
-
-    -- Kiểm tra tính duy nhất của căn cước công dân
     EXEC dbo.sp_ValidateUnique @type = 'customer_cid', @unique = @cid;
-
-    -- Kiểm tra tính duy nhất của số điện thoại
     EXEC dbo.sp_ValidateUnique @type = 'customer_phone', @unique = @phone;
-
-    -- Kiểm tra tính duy nhất của email
     EXEC dbo.sp_ValidateUnique @type = 'customer_email', @unique = @email;
 
     -- Cập nhật thông tin khách hàng
@@ -110,8 +74,5 @@ BEGIN
         email = COALESCE(@email, email),
         gender = COALESCE(@gender, gender)
     WHERE id = @customerId;
-
-    -- Trả về thông báo thành công
-    RETURN 1;
 END
 GO
