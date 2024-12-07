@@ -38,13 +38,7 @@ BEGIN
 
     IF @type = 'branch_dish_served' AND NOT EXISTS (SELECT 1 FROM BranchDish WHERE branch = @id1 AND dish = @id2 AND isServed = 1)
         THROW 50000, 'ERR_DISH_NOT_SERVED', 1;
-
-    IF @type = 'discount' AND NOT EXISTS (SELECT 1 FROM Discount WHERE id = @id1)
-        THROW 50000, 'ERR_NO_DISCOUNT', 1;
     
-    IF @type = 'discount_active' AND NOT EXISTS (SELECT 1 FROM Discount WHERE id = @id1  AND startAt <= GETDATE() AND (endAt IS NULL OR endAt > GETDATE()))
-        THROW 50000, 'ERR_DISCOUNT_NOT_ACTIVE', 1;
-
     IF @type = 'online_has_dish' AND NOT EXISTS (SELECT 1 FROM InvoiceDetail WHERE invoice = @id1)
         IF EXISTS (SELECT 1 FROM InvoiceOnline WHERE invoice = @id1)
             THROW 50000, 'ERR_NO_ONLINE_DISH', 1;
@@ -57,6 +51,18 @@ BEGIN
 
     IF @type = 'table_invoice' AND NOT EXISTS (SELECT 1 FROM BranchTable WHERE branch = @id1 AND tbl = @id2 AND invoice = @id3)
         THROW 50000, 'ERR_TABLE_INVOICE_MISMATCH', 1;
+
+    IF @type = 'employee' AND NOT EXISTS (SELECT 1 FROM Employee WHERE id = @id1)
+        THROW 50000, 'ERR_NO_EMPLOYEE', 1;
+
+    IF @type = 'card' AND NOT EXISTS (SELECT 1 FROM Card WHERE id = @id1)
+        THROW 50000, 'ERR_NO_CARD', 1;
+
+    IF @type = 'category' AND NOT EXISTS (SELECT 1 FROM Category WHERE id = @id1)
+        THROW 50000, 'ERR_NO_CATEGORY', 1;
+
+    IF @type = 'dish' AND NOT EXISTS (SELECT 1 FROM Dish WHERE id = @id1)
+        THROW 50000, 'ERR_NO_DISH', 1;
 END;
 GO
 
@@ -96,4 +102,55 @@ BEGIN
     IF @discountType IN (2, 3) AND @shipCost < @minApply
         THROW 50000, 'ERR_NOT_REACH_MINIMUM', 1;
 END;
+GO
+
+-- TODO: Kiểm tra đã tồn tại của thuộc tính unique
+CREATE OR ALTER PROCEDURE sp_ValidateUnique
+    @type NVARCHAR(50),
+    @unique NVARCHAR(100)
+AS
+BEGIN
+    IF @unique IS NULL 
+        RETURN
+
+    IF @type = 'customer_cid' AND EXISTS (SELECT 1 FROM Customer WHERE cid = @unique)
+        THROW 50000, 'ERR_EXISTS_CID', 1
+
+    IF @type = 'customer_phone' AND EXISTS (SELECT 1 FROM Customer WHERE phone = @unique)
+        THROW 50000, 'ERR_EXISTS_CUSTOMER_PHONE', 1
+
+    IF @type = 'customer_email' AND EXISTS (SELECT 1 FROM Customer WHERE email = @unique)
+        THROW 50000, 'ERR_EXISTS_EMAIL', 1
+
+    IF @type = 'category_nameVN' AND EXISTS (SELECT 1 FROM Category WHERE nameVN = @unique)
+        THROW 50000, 'ERR_EXISTS_CATEGORY_NAMEVN', 1
+
+    IF @type = 'category_nameJP' AND EXISTS (SELECT 1 FROM Category WHERE nameJP = @unique)
+        THROW 50000, 'ERR_EXISTS_CATEGORY_NAMEJP', 1
+
+    IF @type = 'dish_nameVN' AND EXISTS (SELECT 1 FROM Dish WHERE nameVN = @unique)
+        THROW 50000, 'ERR_EXISTS_DISH_NAMEVN', 1
+
+    IF @type = 'dish_nameJP' AND EXISTS (SELECT 1 FROM Dish WHERE nameJP = @unique)
+        THROW 50000, 'ERR_EXISTS_DISH_NAMEJP', 1
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE sp_ValidateDishOrCombo
+    @id INT,
+    @isCombo BIT
+AS
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM Dish WHERE id = @id)
+        THROW 50000, 'ERR_NO_DISH', 1
+
+    IF NOT EXISTS (SELECT 1 FROM Dish WHERE id = @id AND isCombo = @isCombo)
+    BEGIN
+        IF @isCombo = 1
+            THROW 50000, 'ERR_NOT_REAL_COMBO', 1
+        ELSE
+            THROW 50000, 'ERR_NOT_REAL_MENU_ITEM', 1
+    END
+END
 GO
