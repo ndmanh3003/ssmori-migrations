@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Gán order cho bàn
 CREATE OR ALTER PROCEDURE sp_AssignOrder2Table
     @invoiceId INT,

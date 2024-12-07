@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Cập nhật hệ thống
 CREATE OR ALTER PROC sp_UpdateSystemConstants  
     @costPerKm DECIMAL(10, 2),

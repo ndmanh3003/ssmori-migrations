@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Thêm phòng ban mới
 CREATE OR ALTER PROC sp_CreateDepartment  
     @name NVARCHAR(100),

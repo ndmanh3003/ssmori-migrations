@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Thêm stream mới
 CREATE OR ALTER PROC sp_AddStream
     @duration INT
@@ -49,7 +52,7 @@ BEGIN
     ELSE
     BEGIN
         -- Thêm mã OTP mới
-        INSERT INTO Otp (phone, otp, issueAt, atype)
+        INSERT INTO Otp (phone, otp, issueAt, type)
         VALUES (@phone, @otp, GETDATE(), @type);
     END
 END

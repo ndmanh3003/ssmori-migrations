@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Kiểm tra unique các trường trong các bảng
 CREATE OR ALTER PROCEDURE sp_ValidateUnique
     @type NVARCHAR(50),
@@ -43,5 +46,7 @@ BEGIN
     IF @type = 'region_name' AND EXISTS (SELECT 1 FROM Region WHERE name = @unique)
         THROW 50000, 'ERR_EXISTS_REGION_NAME', 1
 
+    IF @type = 'employee_phone' AND EXISTS (SELECT 1 FROM Employee WHERE phone = @unique)
+        THROW 50000, 'ERR_EXISTS_EMPLOYEE_PHONE', 1
 END
 GO

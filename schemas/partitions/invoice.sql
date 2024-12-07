@@ -1,54 +1,15 @@
--- VẪN CÒN HƯ
-USE MASTER
-GO
-
-IF DB_ID('SSMORI') IS NOT NULL
-DROP DATABASE SSMORI
-GO
-CREATE DATABASE SSMORI
-GO 
-
-ALTER DATABASE SSMORI
-ADD FILEGROUP FG1;
-
-ALTER DATABASE SSMORI
-ADD FILEGROUP FG2;
-
-ALTER DATABASE SSMORI
-ADD FILEGROUP FG3;
-
---FILE NAME MÁY MAC VÀ WINDOW KHÁC NHAU
-ALTER DATABASE SSMORI
-ADD FILE (
-    NAME = 'FileGroup1_Data',
-    FILENAME = '/var/opt/mssql/data/FileGroup1_Data.ndf',
-    SIZE = 10MB,
-    MAXSIZE = 100MB,
-    FILEGROWTH = 10MB
-) TO FILEGROUP FG1;
-
-ALTER DATABASE SSMORI
-ADD FILE (
-    NAME = 'FileGroup2_Data',
-    FILENAME = '/var/opt/mssql/data/FileGroup2_Data.ndf',
-    SIZE = 10MB,
-    MAXSIZE = 100MB,
-    FILEGROWTH = 10MB
-) TO FILEGROUP FG2;
-
-ALTER DATABASE SSMORI
-ADD FILE (
-    NAME = 'FileGroup3_Data',
-    FILENAME = '/var/opt/mssql/data/FileGroup3_Data.ndf',
-    SIZE = 10MB,
-    MAXSIZE = 100MB,
-    FILEGROWTH = 10MB
-) TO FILEGROUP FG3;
-
-
+-- Tạo Partition Function phân chia theo năm từ 2022 trở đi
 CREATE PARTITION FUNCTION pfInvoiceDate(DATETIME)
-AS RANGE RIGHT FOR VALUES ('2023-01-01', '2023-07-01', '2024-01-01');
+AS RANGE RIGHT FOR VALUES ('2023-01-01', '2024-01-01', '2025-01-01', '2026-01-01')
+GO
 
+-- Tạo Partition Scheme gắn vào nhóm file mặc định [PRIMARY]
 CREATE PARTITION SCHEME psInvoiceDate
-AS PARTITION pfInvoiceDate TO ([PRIMARY], [FG1], [FG2], [FG3]);
+AS PARTITION pfInvoiceDate TO ([PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY])
+GO
 
+-- Tạo unique clustered index mới và ánh xạ Partition Scheme
+CREATE UNIQUE CLUSTERED INDEX IX_Invoice_Clustered
+ON Invoice (InvoiceNumber, orderAt)
+ON psInvoiceDate(orderAt);
+GO

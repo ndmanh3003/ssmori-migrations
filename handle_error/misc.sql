@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Kiểm tra thời gian đặt phải là thời gian trong tương lai
 CREATE OR ALTER PROCEDURE sp_CheckFutureTime
     @time DATETIME

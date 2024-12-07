@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 CREATE OR ALTER PROCEDURE sp_AddDish2Region
     @regionId INT,
     @dishId INT

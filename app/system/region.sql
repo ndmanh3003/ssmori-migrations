@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Thêm khu vực mới
 CREATE OR ALTER PROC sp_CreateRegion  
 	@name NVARCHAR(100) 
@@ -41,7 +44,7 @@ BEGIN
     FETCH NEXT FROM cur INTO @branchId
     WHILE @@FETCH_STATUS = 0
     BEGIN
-        EXEC dbo.sp_CloseBranch @branchId
+        EXEC dbo.sp_DeleteBranch @branchId
         FETCH NEXT FROM cur INTO @branchId
     END
     CLOSE cur

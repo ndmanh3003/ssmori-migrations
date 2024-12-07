@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 CREATE TABLE Region (
     id					INT IDENTITY PRIMARY KEY,
 
@@ -43,6 +46,7 @@ CREATE TABLE Employee (
     gender				CHAR(1) CHECK (gender IN ('M', 'F', 'O')) NOT NULL, -- M: Male, F: Female, O: Other
     startAt				DATE NOT NULL,
     endAt				DATE DEFAULT NULL,
+    phone               VARCHAR(15) UNIQUE NOT NULL,
 
 	branch				INT NOT NULL,
     department          INT,
@@ -171,8 +175,6 @@ CREATE TABLE Invoice (
     CONSTRAINT FK_Invoice_Employee FOREIGN KEY (employee) REFERENCES Employee(id),
     CONSTRAINT CK_Invoice_Discount CHECK (shipCost >= shipDiscount AND total >= dishDiscount)
 )
--- PARTITION
--- ON psInvoiceDate(orderAt);
 
 CREATE TABLE BranchTable (
     branch				INT NOT NULL,

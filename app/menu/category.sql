@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Tạo mục món ăn mới
 CREATE OR ALTER PROCEDURE sp_CreateCategory
     @nameVN NVARCHAR(100),

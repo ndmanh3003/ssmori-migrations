@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Tạo đơn hàng online
 CREATE OR ALTER PROCEDURE sp_CreateOnlineOrder
     @phone VARCHAR(15),
@@ -16,7 +19,7 @@ BEGIN
     DECLARE @shipCost DECIMAL(10,2) 
     SET @shipCost = dbo.fn_CalculateShipCost(@distanceKm)
 
-    INSERT INTO Invoice (status, orderAt, customer, branch, isOnline, shipCost)
+    INSERT INTO Invoice (status, orderAt, customer, branch, type, shipCost)
     VALUES (0, GETDATE(), @customerId, @branchId, 'O', @shipCost)
 
     SET @invoiceId = SCOPE_IDENTITY()

@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Thêm chi nhánh mới
 CREATE OR ALTER PROC sp_CreateBranch 
     @name NVARCHAR(100),
@@ -35,7 +38,17 @@ BEGIN
         SET @counter = @counter + 1
     END
 
-    -- TODO: thêm món ăn
+    -- Thêm món ăn
+    DECLARE @branch2 INT
+    SELECT TOP 1 @branch2 = id FROM Branch b WHERE b.region = @regionId AND b.isDeleted = 0 AND b.id != @branchId
+
+    IF @branch2 IS NOT NULL
+    BEGIN
+        INSERT INTO BranchDish (branch, dish, isServed)
+        SELECT @branchId, bd.dish, 1
+        FROM BranchDish bd
+        WHERE bd.branch = @branch2
+    END
 END
 GO
 

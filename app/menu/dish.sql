@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Thêm món ăn
 CREATE OR ALTER PROCEDURE sp_CreateDish
     @isCombo BIT = 0,          
@@ -55,7 +58,8 @@ AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
 
-    -- TODO: Xóa các table liên quan
+    -- Xóa các table liên quan
+    EXEC dbo.sp_DeleteRelate2Dish @dishId = @dishId;
 
     -- Đánh dấu đã xóa món ăn
     UPDATE Dish

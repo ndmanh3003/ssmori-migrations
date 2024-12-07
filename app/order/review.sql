@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Tạo đánh giá
 CREATE OR ALTER PROCEDURE sp_CreateReview
     @invoiceId INT,

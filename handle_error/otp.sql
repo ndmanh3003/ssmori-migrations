@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Kiểm tra phone tồn tại
 CREATE OR ALTER PROCEDURE sp_CheckPhone
     @phone VARCHAR(15),

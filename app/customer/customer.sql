@@ -1,3 +1,20 @@
+USE SSMORI
+GO
+
+-- TODO: Đóng thẻ khách hàng
+CREATE OR ALTER PROCEDURE sp_CloseCustomerCard
+    @customerId INT
+AS
+BEGIN
+    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
+
+    -- Đóng thẻ của khách hàng
+    UPDATE Card
+    SET isClosed = 1
+    WHERE customer = @customerId
+END
+GO
+
 -- TODO: Tạo thẻ khách hàng mới
 CREATE OR ALTER PROCEDURE sp_CreateCustomerCard
     @employeeId INT,
@@ -13,20 +30,6 @@ BEGIN
     -- Tạo thẻ cho khách hàng
     INSERT INTO Card (issueAt, isClosed, employee, customer)
     VALUES (GETDATE(), 0, @employeeId, @customerId)
-END
-GO
-
--- TODO: Đóng thẻ khách hàng
-CREATE OR ALTER PROCEDURE sp_CloseCustomerCard
-    @customerId INT
-AS
-BEGIN
-    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
-
-    -- Đóng thẻ của khách hàng
-    UPDATE Card
-    SET isClosed = 1
-    WHERE customer = @customerId
 END
 GO
 

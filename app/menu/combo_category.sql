@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Thêm/xóa/cập nhật vị trí món ăn trong danh mục
 CREATE OR ALTER PROCEDURE sp_ManageCategoryDishes
     @categoryId INT,

@@ -1,25 +1,30 @@
+USE SSMORI
+GO
+
 -- TODO: Thêm nhân viên mới
 CREATE OR ALTER PROC sp_CreateEmployee  
 	@name NVARCHAR(100),
     @dob DATE,
     @gender	CHAR(1),
 	@branchId INT,
+    @phone NVARCHAR(15),
     @departmentId INT
 AS 
 BEGIN
 	EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
 	EXEC dbo.sp_Validate @type = 'department', @id1 = @departmentId
+    EXEC dbo.sp_ValidateUnique @type = 'employee_phone', @unique = @phone
 
     -- Tạo nhân viên
 	INSERT INTO EMPLOYEE (name, dob, gender, startAt, branch, department)
-	VALUES(@name, @dob, @gender, @startAt, @branchId, @departmentId)
+	VALUES(@name, @dob, @gender, GETDATE(), @branchId, @departmentId)
 
 	DECLARE @employeeId INT;
     SET @employeeId = SCOPE_IDENTITY();
 
     -- Cập nhật bảng lịch sử làm việc
-    INSERT INTO WorkHistory (employee, department, startAt)
-    VALUES (@employeeId, @departmentId, GETDATE())
+    INSERT INTO WorkHistory (employee, branch, startAt)
+    VALUES (@employeeId, @branchId, GETDATE())
 END
 GO
 
@@ -29,11 +34,13 @@ CREATE OR ALTER PROC sp_UpdateEmployee
     @name NVARCHAR(100) = NULL,
     @dob DATE = NULL,
     @gender	CHAR(1) = NULL,
+    @phone NVARCHAR(15) = NULL,
     @branchId INT = NULL,
     @departmentId INT = NULL
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'employee', @id1 = @employeeId
+    EXEC dbo.sp_ValidateUnique @type = 'employee_phone', @unique = @phone
     IF @branchId IS NOT NULL
         EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
     IF @departmentId IS NOT NULL
@@ -55,9 +62,8 @@ BEGIN
         SET endAt = GETDATE()
         WHERE employee = @employeeId AND endAt IS NULL
 
-        DECLARE @departmentId INT = (SELECT department FROM Employee WHERE id = @employeeId)
-        INSERT INTO WorkHistory (employee, department, startAt)
-        VALUES (@employeeId, @departmentId, GETDATE())
+        INSERT INTO WorkHistory (employee, branch, startAt)
+        VALUES (@employeeId, @branchId, GETDATE())
     END
 END
 GO

@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Xác nhận thanh toán hóa đơn
 CREATE OR ALTER PROCEDURE sp_ConfirmPayment
     @invoiceId INT,

@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Thêm/xóa/cập nhật món ăn trong hóa đơn
 CREATE OR ALTER PROCEDURE sp_ManageOrderDetail
     @invoiceId INT,
@@ -7,13 +10,13 @@ AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId
-    IF @type = 'O'
-        EXEC dbo.sp_Validate @type = 'dish_shipping', @id1 = @dishId
-
+    
     -- Lấy thông tin đơn hàng
     DECLARE @type CHAR(1), @branchId INT
     SELECT @type = type, @branchId = branch FROM Invoice WHERE id = @invoiceId
-
+    
+    IF @type = 'O'
+        EXEC dbo.sp_Validate @type = 'dish_shipping', @id1 = @dishId
     EXEC dbo.sp_Validate @type = 'branch_dish_served', @id1 = @branchId, @id2 = @dishId
 
     -- Xử lý quantity

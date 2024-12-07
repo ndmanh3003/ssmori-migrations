@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Chuyển trạng thái hóa đơn sang đang hoàn thành đặt món
 CREATE OR ALTER PROCEDURE sp_CompleteOrder
     @invoiceId INT

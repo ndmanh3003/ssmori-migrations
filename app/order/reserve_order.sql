@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Tạo hóa đơn đặt bàn
 CREATE OR ALTER PROCEDURE sp_CreateReserveOrder
     @branchId INT,

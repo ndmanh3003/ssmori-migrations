@@ -1,3 +1,6 @@
+USE SSMORI
+GO
+
 -- TODO: Tính phí ship dựa trên khoảng cách
 CREATE OR ALTER FUNCTION fn_CalculateShipCost(
     @distanceKm INT
@@ -82,7 +85,7 @@ BEGIN
 
     ELSE IF @currentType = 'S'
     BEGIN
-        IF DATEDIFF(YEAR, @upgradeAt, @today) >= 1
+        IF DATEDIFF(YEAR, @upgradeAt, GETDATE()) >= 1
         BEGIN
             IF @currentPoint < 50 -- Điều kiện tuột xuống Membership
                 SET @newType = 'M'
@@ -96,7 +99,7 @@ BEGIN
     
     ELSE IF @currentType = 'G'
     BEGIN
-        IF DATEDIFF(YEAR, @upgradeAt, @today) >= 1
+        IF DATEDIFF(YEAR, @upgradeAt, GETDATE()) >= 1
         BEGIN
             IF @currentPoint < 100 -- Điều kiện tuột xuống Silver
                 SET @newType = 'S'
@@ -105,7 +108,7 @@ BEGIN
 
     -- Cập nhật điểm và hạng thẻ mới
     UPDATE Customer
-    SET point = @currentPoint, type = @newType, upgradeAt = CASE WHEN @isUpgrade = 1 THEN @today ELSE @upgradeAt END
+    SET point = @currentPoint, type = @newType, upgradeAt = CASE WHEN @isUpgrade = 1 THEN GETDATE() ELSE @upgradeAt END
     WHERE id = @customerId
 END
 GO
@@ -140,6 +143,7 @@ BEGIN
         WHEN @customerType = 'G' THEN shipGoldDiscount
         ELSE 0
     END
+    FROM Const
 
     SELECT @dishDiscount = CASE 
         WHEN @customerType = 'M' THEN dishMemberDiscount
@@ -147,6 +151,7 @@ BEGIN
         WHEN @customerType = 'G' THEN dishGoldDiscount
         ELSE 0
     END
+    FROM Const
    
     -- Áp dụng discount cho món ăn và vận chuyển
     UPDATE Invoice
