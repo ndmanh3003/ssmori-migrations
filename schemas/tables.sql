@@ -6,6 +6,8 @@ DROP DATABASE SSMORI
 GO
 CREATE DATABASE SSMORI
 GO 
+
+--NẾU PARTITION THÌ BỎ HẾT MẤY CÁI TRÊN
 USE SSMORI
 GO
 
@@ -27,13 +29,15 @@ CREATE TABLE Branch (
     hasCarPark			BIT DEFAULT 0,
     canShip				BIT DEFAULT 0,
 
-    region				INT NOT NULL,
+    region				INT,
 	manager				INT,
 
     tableQuantity		TINYINT DEFAULT 0 NOT NULL CHECK (tableQuantity >= 0),
     floorQuantity		TINYINT DEFAULT 1 NOT NULL CHECK (floorQuantity >= 1),
 
-    CONSTRAINT FK_Branch_Region FOREIGN KEY (region) REFERENCES Region(id) ON DELETE CASCADE,
+    isDeleted			BIT DEFAULT 0 NOT NULL,
+
+    CONSTRAINT FK_Branch_Region FOREIGN KEY (region) REFERENCES Region(id) ON DELETE SET NULL,
     CONSTRAINT CK_Branch_WorkingTime CHECK (openTime < closeTime)
 )
 
@@ -53,11 +57,11 @@ CREATE TABLE Employee (
     startAt				DATE NOT NULL,
     endAt				DATE DEFAULT NULL,
 
-	branch				INT,
-    department          INT NOT NULL,
+	branch				INT NOT NULL,
+    department          INT,
 
-	CONSTRAINT FK_Employee_Branch FOREIGN KEY (branch) REFERENCES Branch(id) ON DELETE CASCADE,
-	CONSTRAINT FK_Employee_Department FOREIGN KEY (department) REFERENCES Department(id) ON DELETE CASCADE,
+	CONSTRAINT FK_Employee_Branch FOREIGN KEY (branch) REFERENCES Branch(id),
+	CONSTRAINT FK_Employee_Department FOREIGN KEY (department) REFERENCES Department(id) ON DELETE SET NULL,
     CONSTRAINT CK_Employee_StartEndDate CHECK (endAt IS NULL OR startAt < endAt)
 )
 
@@ -110,7 +114,9 @@ CREATE TABLE Dish (
     description			NVARCHAR(255),
     price				DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
     canShip				BIT DEFAULT 0,
-    img					NVARCHAR(255)
+    img					NVARCHAR(255),
+
+    isDeleted            BIT DEFAULT 0 NOT NULL
 )
 
 CREATE TABLE Category (
@@ -121,26 +127,25 @@ CREATE TABLE Category (
 )
 
 CREATE TABLE CategoryDish (
-	no					INT IDENTITY,
     category			INT NOT NULL,
-
     dish				INT NOT NULL,
 
-    PRIMARY KEY (category, no),
+	no					TINYINT,
+
+    PRIMARY KEY (category, dish),
     CONSTRAINT FK_CategoryDish_Category FOREIGN KEY (category) REFERENCES Category(id) ON DELETE CASCADE,
-    CONSTRAINT FK_CategoryDish_Dish FOREIGN KEY (dish) REFERENCES Dish(id) ON DELETE CASCADE
+    CONSTRAINT FK_CategoryDish_Dish FOREIGN KEY (dish) REFERENCES Dish(id),
 )
 
 CREATE TABLE ComboDish (
-	no					INT IDENTITY,
     combo				INT NOT NULL,
-
     dish				INT NOT NULL,
-	quantity			TINYINT DEFAULT 1 CHECK (quantity >= 1) NOT NULL,
 
-    PRIMARY KEY (combo, no),
-    CONSTRAINT FK_ComboDish_Combo FOREIGN KEY (combo) REFERENCES Dish(id) ON DELETE CASCADE,
-	CONSTRAINT FK_ComboDish_Dish FOREIGN KEY (dish) REFERENCES Dish(id) ON DELETE NO ACTION,
+	no					TINYINT,
+
+    PRIMARY KEY (combo, dish),
+    CONSTRAINT FK_ComboDish_Combo FOREIGN KEY (combo) REFERENCES Dish(id),
+	CONSTRAINT FK_ComboDish_Dish FOREIGN KEY (dish) REFERENCES Dish(id),
 	CONSTRAINT CK_ComboDish_NoSelfReference CHECK (combo != dish)
 )
 
@@ -151,28 +156,27 @@ CREATE TABLE BranchDish (
     isServed			BIT DEFAULT 1,
 
     PRIMARY KEY (branch, dish),
-    CONSTRAINT FK_BranchDish_Branch FOREIGN KEY (branch) REFERENCES Branch(id) ON DELETE CASCADE,
-    CONSTRAINT FK_BranchDish_Dish FOREIGN KEY (dish) REFERENCES Dish(id) ON DELETE CASCADE
+    CONSTRAINT FK_BranchDish_Branch FOREIGN KEY (branch) REFERENCES Branch(id),
+    CONSTRAINT FK_BranchDish_Dish FOREIGN KEY (dish) REFERENCES Dish(id)
 )
 
 
 CREATE TABLE Invoice (
     id					INT IDENTITY PRIMARY KEY,
 
+	-- odering, confirmed, in_progress, ready, discount_applied, paid, shipped, completed, canceled, waiting
     status              NVARCHAR(15) NOT NULL,
     orderAt				DATETIME NOT NULL CHECK (orderAt <= GETDATE()),
 
     total				DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (total >= 0),
-    dishDiscount		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (dishDiscount >= 0),
-
     shipCost			DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (shipCost >= 0),
+    dishDiscount		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (dishDiscount >= 0),
     shipDiscount		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (shipDiscount >= 0),
-
     totalPayment		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (totalPayment >= 0),
 
     customer			INT,
     employee			INT,
-    branch				INT NOT NULL,
+    branch				INT,
     type    			CHAR(1) CHECK (type IN ('R', 'O', 'W')) NOT NULL, -- R: Reserve, O: Online, W: Walk-in
 
     CONSTRAINT FK_Invoice_Customer FOREIGN KEY (customer) REFERENCES Customer(id),
@@ -180,6 +184,8 @@ CREATE TABLE Invoice (
     CONSTRAINT FK_Invoice_Employee FOREIGN KEY (employee) REFERENCES Employee(id),
     CONSTRAINT CK_Invoice_Discount CHECK (shipCost >= shipDiscount AND total >= dishDiscount)
 )
+-- PARTITION
+-- ON psInvoiceDate(orderAt);
 
 
 CREATE TABLE BranchTable (
@@ -189,7 +195,7 @@ CREATE TABLE BranchTable (
     invoice				INT,
 
     PRIMARY KEY (branch, tbl),
-    CONSTRAINT FK_BranchTable_Branch FOREIGN KEY (branch) REFERENCES Branch(id) ON DELETE CASCADE,
+    CONSTRAINT FK_BranchTable_Branch FOREIGN KEY (branch) REFERENCES Branch(id),
     CONSTRAINT FK_BranchTable_Invoice FOREIGN KEY (invoice) REFERENCES Invoice(id)
 );
 
@@ -205,6 +211,8 @@ CREATE TABLE InvoiceDetail (
     CONSTRAINT FK_InvoiceDetail_Invoice FOREIGN KEY (invoice) REFERENCES Invoice(id),
     CONSTRAINT FK_InvoiceDetail_Dish FOREIGN KEY (dish) REFERENCES Dish(id)
 )
+-- PARTITION
+-- ON psInvoiceDate(invoice);
 
 CREATE TABLE Review (
     invoice				INT PRIMARY KEY,
@@ -267,7 +275,7 @@ CREATE TABLE StaticsRevenueDate (
     totalValue          DECIMAL(10, 2) NOT NULL CHECK (totalValue >= 0),
 
     PRIMARY KEY (branch, date),
-    CONSTRAINT FK_StaticsRevenueDate_Branch FOREIGN KEY (branch) REFERENCES Branch(id) ON DELETE CASCADE
+    CONSTRAINT FK_StaticsRevenueDate_Branch FOREIGN KEY (branch) REFERENCES Branch(id)
 );
 
 
@@ -279,7 +287,7 @@ CREATE TABLE StaticsRevenueMonth (
     totalValue          DECIMAL(10, 2) NOT NULL CHECK (totalValue >= 0),
 
     PRIMARY KEY (branch, date),
-    CONSTRAINT FK_StaticsRevenueMonth_Branch FOREIGN KEY (branch) REFERENCES Branch(id) ON DELETE CASCADE
+    CONSTRAINT FK_StaticsRevenueMonth_Branch FOREIGN KEY (branch) REFERENCES Branch(id)
 );
 
 CREATE TABLE StaticsDishMonth (
@@ -290,8 +298,8 @@ CREATE TABLE StaticsDishMonth (
 	totalDish           INT NOT NULL,
 
     PRIMARY KEY (branch, date, dish),
-    CONSTRAINT FK_StaticsDishMonth_Branch FOREIGN KEY (branch) REFERENCES Branch(id) ON DELETE CASCADE,
-    CONSTRAINT FK_StaticsDishMonth_Dish FOREIGN KEY (dish) REFERENCES Dish(id) ON DELETE CASCADE
+    CONSTRAINT FK_StaticsDishMonth_Branch FOREIGN KEY (branch) REFERENCES Branch(id),
+    CONSTRAINT FK_StaticsDishMonth_Dish FOREIGN KEY (dish) REFERENCES Dish(id)
 );
 
 CREATE TABLE StaticsRateEmployeeDate (
@@ -320,7 +328,7 @@ CREATE TABLE StaticsRateBranchDate (
 	totalReview			INT NOT NULL DEFAULT 0,
 
     PRIMARY KEY (branch, date),
-    CONSTRAINT FK_StaticsRateBranchDate_Branch FOREIGN KEY (branch) REFERENCES Branch(id) ON DELETE CASCADE
+    CONSTRAINT FK_StaticsRateBranchDate_Branch FOREIGN KEY (branch) REFERENCES Branch(id)
 );
 
 CREATE TABLE OTP (
