@@ -26,6 +26,12 @@ BEGIN
     IF @type = 'region_has_branch' AND NOT EXISTS (SELECT 1 FROM Branch WHERE region = @id1)
         THROW 50000, 'ERR_REGION_HAS_BRANCH', 1;
 
+    IF @type = 'region' AND NOT EXISTS (SELECT 1 FROM Region WHERE id = @id1)
+        THROW 50000, 'ERR_NO_REGION', 1;
+
+    IF @type = 'department' AND NOT EXISTS (SELECT 1 FROM Department WHERE id = @id1)
+        THROW 50000, 'ERR_NO_DEPARTMENT', 1;
+
     -- * Relate to customer
     IF @type = 'customer' AND NOT EXISTS (SELECT 1 FROM Customer WHERE id = @id1)
         THROW 50000, 'ERR_NO_CUSTOMER', 1;

@@ -1,7 +1,7 @@
 CREATE TABLE Region (
     id					INT IDENTITY PRIMARY KEY,
 
-    name				NVARCHAR(100) NOT NULL
+    name				NVARCHAR(100) UNIQUE NOT NULL
 )
 
 CREATE TABLE Branch (
