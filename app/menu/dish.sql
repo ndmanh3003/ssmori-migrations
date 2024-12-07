@@ -55,11 +55,12 @@ AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
 
-    -- TODO: Xóa các table liên quan
-
     -- Đánh dấu đã xóa món ăn
     UPDATE Dish
     SET isDeleted = 1
     WHERE id = @dishId;
+
+    --Xoá các hàng bảng liên quan
+    EXEC dbo.sp_DeleteRelateToDish @dishId = @dishId;
 END
 GO

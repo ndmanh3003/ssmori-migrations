@@ -1,54 +1,26 @@
--- VẪN CÒN HƯ
 USE MASTER
 GO
 
+-- Xóa cơ sở dữ liệu nếu đã tồn tại
 IF DB_ID('SSMORI') IS NOT NULL
-DROP DATABASE SSMORI
+    DROP DATABASE SSMORI;
 GO
+
+-- Tạo cơ sở dữ liệu mới
 CREATE DATABASE SSMORI
 GO 
 
-ALTER DATABASE SSMORI
-ADD FILEGROUP FG1;
+USE SSMORI
+GO
 
-ALTER DATABASE SSMORI
-ADD FILEGROUP FG2;
-
-ALTER DATABASE SSMORI
-ADD FILEGROUP FG3;
-
---FILE NAME MÁY MAC VÀ WINDOW KHÁC NHAU
-ALTER DATABASE SSMORI
-ADD FILE (
-    NAME = 'FileGroup1_Data',
-    FILENAME = '/var/opt/mssql/data/FileGroup1_Data.ndf',
-    SIZE = 10MB,
-    MAXSIZE = 100MB,
-    FILEGROWTH = 10MB
-) TO FILEGROUP FG1;
-
-ALTER DATABASE SSMORI
-ADD FILE (
-    NAME = 'FileGroup2_Data',
-    FILENAME = '/var/opt/mssql/data/FileGroup2_Data.ndf',
-    SIZE = 10MB,
-    MAXSIZE = 100MB,
-    FILEGROWTH = 10MB
-) TO FILEGROUP FG2;
-
-ALTER DATABASE SSMORI
-ADD FILE (
-    NAME = 'FileGroup3_Data',
-    FILENAME = '/var/opt/mssql/data/FileGroup3_Data.ndf',
-    SIZE = 10MB,
-    MAXSIZE = 100MB,
-    FILEGROWTH = 10MB
-) TO FILEGROUP FG3;
-
-
+-- Tạo Partition Function dựa trên ngày
 CREATE PARTITION FUNCTION pfInvoiceDate(DATETIME)
-AS RANGE RIGHT FOR VALUES ('2023-01-01', '2023-07-01', '2024-01-01');
+AS RANGE RIGHT FOR VALUES ('2023-01-01', '2023-07-01', '2024-01-01')
+GO
 
+-- Tạo Partition Scheme gắn vào nhóm file mặc định [PRIMARY]
 CREATE PARTITION SCHEME psInvoiceDate
-AS PARTITION pfInvoiceDate TO ([PRIMARY], [FG1], [FG2], [FG3]);
+AS PARTITION pfInvoiceDate TO ([PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY])
+GO
+
 

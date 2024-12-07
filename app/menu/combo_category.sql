@@ -5,23 +5,23 @@ CREATE OR ALTER PROCEDURE sp_ManageCategoryDishes
     @no TINYINT
 AS
 BEGIN
-    EXEC dbo.sp_Validate @type = 'category', @id1 = @categoryId;
-    EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
-    EXEC dbo.sp_ValidateNoInCategory @id = @categoryId, @no = @no;
+    EXEC dbo.sp_Validate @type = 'category', @id1 = @categoryId
+    EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId
+    EXEC dbo.sp_ValidateNoInCategory @id = @categoryId, @no = @no
 
     -- Lấy tổng số món trong danh mục
-    DECLARE @total TINYINT;
-    SELECT @total = COUNT(*) FROM CategoryDish WHERE category = @categoryId;
+    DECLARE @total TINYINT
+    SELECT @total = COUNT(*) FROM CategoryDish WHERE category = @categoryId
 
     -- Lấy vị trí cũ của món
-    DECLARE @oldNo TINYINT = NULL;
-    SELECT @oldNo = no FROM CategoryDish WHERE category = @categoryId AND dish = @dishId;
+    DECLARE @oldNo TINYINT = NULL
+    SELECT @oldNo = no FROM CategoryDish WHERE category = @categoryId AND dish = @dishId
 
     -- Xóa món ăn khỏi danh mục
     IF @no = 0
     BEGIN
         DELETE FROM CategoryDish
-        WHERE category = @categoryId AND dish = @dishId;
+        WHERE category = @categoryId AND dish = @dishId
 
         -- Điều chỉnh thứ tự các món sau khi xóa
         UPDATE CategoryDish
@@ -36,7 +36,7 @@ BEGIN
         IF @oldNo IS NULL
         BEGIN
             INSERT INTO CategoryDish (category, dish, no)
-            VALUES (@categoryId, @dishId, @no);
+            VALUES (@categoryId, @dishId, @no)
         END
     END
 
@@ -51,20 +51,20 @@ BEGIN
                 -- Dời các món phía sau để chèn món vào vị trí mới
                 UPDATE CategoryDish
                 SET no = no + 1
-                WHERE category = @categoryId AND no >= @no AND no < @oldNo;
+                WHERE category = @categoryId AND no >= @no AND no < @oldNo
             END
             ELSE
             BEGIN
                 -- Dời các món phía trước để chèn món vào vị trí mới
                 UPDATE CategoryDish
                 SET no = no - 1
-                WHERE category = @categoryId AND no > @oldNo AND no <= @no;
+                WHERE category = @categoryId AND no > @oldNo AND no <= @no
             END
 
             -- Cập nhật vị trí mới cho món
             UPDATE CategoryDish
             SET no = @no
-            WHERE category = @categoryId AND dish = @dishId;
+            WHERE category = @categoryId AND dish = @dishId
         END
     END
 END
@@ -77,23 +77,23 @@ CREATE OR ALTER PROCEDURE sp_ManageComboDishes
     @no TINYINT
 AS
 BEGIN
-    EXEC dbo.sp_Validate @type = 'dish_is_combo', @id1 = @comboId;
-    EXEC dbo.sp_Validate @type = 'dish_no_combo', @id1 = @dishId;
-    EXEC dbo.sp_ValidateNoInCategory @id = @comboId, @no = @no, @isCombo = 1;
+    EXEC dbo.sp_Validate @type = 'dish_is_combo', @id1 = @comboId
+    EXEC dbo.sp_Validate @type = 'dish_no_combo', @id1 = @dishId
+    EXEC dbo.sp_ValidateNoInCategory @id = @comboId, @no = @no, @isCombo = 1
 
     -- Lấy tổng số món trong combo
-    DECLARE @total TINYINT;
-    SELECT @total = COUNT(*) FROM ComboDish WHERE combo = @comboId;
+    DECLARE @total TINYINT
+    SELECT @total = COUNT(*) FROM ComboDish WHERE combo = @comboId
 
     -- Lấy vị trí cũ của món
-    DECLARE @oldNo TINYINT = NULL;
-    SELECT @oldNo = no FROM ComboDish WHERE combo = @comboId AND dish = @dishId;
+    DECLARE @oldNo TINYINT = NULL
+    SELECT @oldNo = no FROM ComboDish WHERE combo = @comboId AND dish = @dishId
 
     -- Xóa món ăn khỏi combo
     IF @no = 0
     BEGIN
         DELETE FROM ComboDish
-        WHERE combo = @comboId AND dish = @dishId;
+        WHERE combo = @comboId AND dish = @dishId
 
         -- Điều chỉnh thứ tự các món sau khi xóa
         UPDATE ComboDish
@@ -108,7 +108,7 @@ BEGIN
         IF @oldNo IS NULL
         BEGIN
             INSERT INTO ComboDish (combo, dish, no)
-            VALUES (@comboId, @dishId, @no);
+            VALUES (@comboId, @dishId, @no)
         END
     END
 
@@ -123,20 +123,20 @@ BEGIN
                 -- Dời các món phía sau để chèn món vào vị trí mới
                 UPDATE ComboDish
                 SET no = no + 1
-                WHERE combo = @comboId AND no >= @no AND no < @oldNo;
+                WHERE combo = @comboId AND no >= @no AND no < @oldNo
             END
             ELSE
             BEGIN
                 -- Dời các món phía trước để chèn món vào vị trí mới
                 UPDATE ComboDish
                 SET no = no - 1
-                WHERE combo = @comboId AND no > @oldNo AND no <= @no;
+                WHERE combo = @comboId AND no > @oldNo AND no <= @no
             END
 
             -- Cập nhật vị trí mới cho món
             UPDATE ComboDish
             SET no = @no
-            WHERE combo = @comboId AND dish = @dishId;
+            WHERE combo = @comboId AND dish = @dishId
         END
     END
 END
