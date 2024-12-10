@@ -4,7 +4,7 @@ GO
 -- TODO: Thêm phòng ban mới
 CREATE OR ALTER PROC sp_CreateDepartment  
     @name NVARCHAR(100),
-    @salary DECIMAL(18, 2)
+    @salary DECIMAL(12, 2)
 AS
 BEGIN
     EXEC dbo.sp_ValidateUnique @type = 'department_name', @unique = @name
@@ -18,7 +18,7 @@ GO
 CREATE OR ALTER PROC sp_UpdateDepartment  
     @departmentId INT,
     @name NVARCHAR(100) = NULL,
-    @salary DECIMAL(18, 2) = NULL
+    @salary DECIMAL(12, 2) = NULL
 AS
 BEGIN
     EXEC dbo.sp_ValidateUnique @type = 'department_name', @unique = @name

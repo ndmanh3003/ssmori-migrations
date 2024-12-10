@@ -35,7 +35,7 @@ CREATE TABLE Department (
     id					INT IDENTITY PRIMARY KEY,
 
     name				NVARCHAR(100) UNIQUE NOT NULL,
-    salary				DECIMAL(10, 2) NOT NULL CHECK (salary > 0)
+    salary				DECIMAL(12, 2) NOT NULL CHECK (salary > 0)
 )
 
 CREATE TABLE Employee (
@@ -53,7 +53,7 @@ CREATE TABLE Employee (
 
 	CONSTRAINT FK_Employee_Branch FOREIGN KEY (branch) REFERENCES Branch(id),
 	CONSTRAINT FK_Employee_Department FOREIGN KEY (department) REFERENCES Department(id) ON DELETE SET NULL,
-    CONSTRAINT CK_Employee_StartEndDate CHECK (endAt IS NULL OR startAt < endAt)
+    CONSTRAINT CK_Employee_StartEndDate CHECK (endAt IS NULL OR startAt <= endAt)
 )
 
 CREATE TABLE WorkHistory (
@@ -67,7 +67,7 @@ CREATE TABLE WorkHistory (
     PRIMARY KEY (employee, startAt),
     CONSTRAINT FK_WorkHistory_Employee FOREIGN KEY (employee) REFERENCES Employee(id),
     CONSTRAINT FK_WorkHistory_Branch FOREIGN KEY (branch) REFERENCES Branch(id),
-    CONSTRAINT CK_WorkHistory_Dates CHECK (endAt IS NULL OR startAt < endAt)
+    CONSTRAINT CK_WorkHistory_Dates CHECK (endAt IS NULL OR startAt <= endAt)
 )
 
 CREATE TABLE Customer (
@@ -159,11 +159,11 @@ CREATE TABLE Invoice (
     status              NVARCHAR(15) NOT NULL,
     orderAt				DATETIME NOT NULL CHECK (orderAt <= GETDATE()),
 
-    total				DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (total >= 0),
+    total				DECIMAL(12, 2) DEFAULT 0 NOT NULL CHECK (total >= 0),
     shipCost			DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (shipCost >= 0),
     dishDiscount		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (dishDiscount >= 0),
     shipDiscount		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (shipDiscount >= 0),
-    totalPayment		DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (totalPayment >= 0),
+    totalPayment		DECIMAL(12, 2) DEFAULT 0 NOT NULL CHECK (totalPayment >= 0),
 
     customer			INT,
     employee			INT,
@@ -258,7 +258,7 @@ CREATE TABLE StaticsRevenueDate (
     date                DATE NOT NULL,
 
     totalInvoice        INT NOT NULL CHECK (totalInvoice >= 0),
-    totalValue          DECIMAL(10, 2) NOT NULL CHECK (totalValue >= 0),
+    totalValue          DECIMAL(14, 2) NOT NULL CHECK (totalValue >= 0),
 
     PRIMARY KEY (branch, date),
     CONSTRAINT FK_StaticsRevenueDate_Branch FOREIGN KEY (branch) REFERENCES Branch(id)
@@ -270,7 +270,7 @@ CREATE TABLE StaticsRevenueMonth (
     date                DATE NOT NULL, 
 
     totalInvoice        INT NOT NULL CHECK (totalInvoice >= 0),
-    totalValue          DECIMAL(10, 2) NOT NULL CHECK (totalValue >= 0),
+    totalValue          DECIMAL(16, 2) NOT NULL CHECK (totalValue >= 0),
 
     PRIMARY KEY (branch, date),
     CONSTRAINT FK_StaticsRevenueMonth_Branch FOREIGN KEY (branch) REFERENCES Branch(id)

@@ -16,8 +16,8 @@ BEGIN
     EXEC dbo.sp_ValidateUnique @type = 'employee_phone', @unique = @phone
 
     -- Tạo nhân viên
-	INSERT INTO EMPLOYEE (name, dob, gender, startAt, branch, department)
-	VALUES(@name, @dob, @gender, GETDATE(), @branchId, @departmentId)
+	INSERT INTO EMPLOYEE (name, dob, gender, startAt, phone, branch, department)
+	VALUES(@name, @dob, @gender, GETDATE(), @phone, @branchId, @departmentId)
 
 	DECLARE @employeeId INT;
     SET @employeeId = SCOPE_IDENTITY();
@@ -51,6 +51,7 @@ BEGIN
     SET name = COALESCE(@name, name),
         dob = COALESCE(@dob, dob),
         gender = COALESCE(@gender, gender),
+        phone = COALESCE(@phone, phone),
         branch = COALESCE(@branchId, branch),
         department = COALESCE(@departmentId, department)
     WHERE id = @employeeId

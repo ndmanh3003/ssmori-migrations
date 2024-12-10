@@ -38,17 +38,8 @@ BEGIN
         SET @counter = @counter + 1
     END
 
-    -- Thêm món ăn
-    DECLARE @branch2 INT
-    SELECT TOP 1 @branch2 = id FROM Branch b WHERE b.region = @regionId AND b.isDeleted = 0 AND b.id != @branchId
-
-    IF @branch2 IS NOT NULL
-    BEGIN
-        INSERT INTO BranchDish (branch, dish, isServed)
-        SELECT @branchId, bd.dish, 1
-        FROM BranchDish bd
-        WHERE bd.branch = @branch2
-    END
+    -- Thêm món ăn của vùng vào chi nhánh
+    EXEC dbo.sp_InitDishesInRegionToBranch @branchId = @branchId, @regionId = @regionId
 END
 GO
 
@@ -92,8 +83,18 @@ BEGIN
     -- Nếu có thay đổi tableQuantity hoặc floorQuantity, cập nhật BranchTable
     IF @tableQuantity IS NOT NULL OR @floorQuantity IS NOT NULL
     BEGIN
+        DECLARE @oldTableQty INT, @oldFloorQty INT
+        SELECT @oldTableQty = tableQuantity, @oldFloorQty = floorQuantity
+        FROM Branch
+        WHERE id = @branchId
+
+        IF @tableQuantity IS NULL
+            SET @tableQuantity = @oldTableQty
+        IF @floorQuantity IS NULL
+            SET @floorQuantity = @oldFloorQty
+
         DECLARE @totalTables INT = 20 + @floorQuantity * @tableQuantity
-        DECLARE @currentTables INT = (SELECT COUNT(*) FROM BranchTable WHERE branch = @branchId)
+        DECLARE @currentTables INT = 20 + @oldTableQty * @oldFloorQty
         DECLARE @counter INT = @currentTables + 1
 
         IF @totalTables > @currentTables
@@ -111,6 +112,13 @@ BEGIN
             WHERE branch = @branchId AND tbl > @totalTables
         END
     END
+
+    -- Nếu có thay đổi regionId, đổi BranchDish theo Region   
+    IF @regionId IS NOT NULL
+    BEGIN
+        DELETE FROM BranchDish WHERE Branch = @branchId
+        EXEC dbo.sp_InitDishesInRegionToBranch @branchId = @branchId, @regionId = @regionId
+     END
 END
 GO
 

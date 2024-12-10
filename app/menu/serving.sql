@@ -8,7 +8,7 @@ AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'region', @id1 = @regionId
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId
-    EXEC dbo.sp_Validate @type = 'region_has_branch', @id1 = @dishId
+    EXEC dbo.sp_Validate @type = 'region_has_branch', @id1 = @regionId
 
     -- Lấy danh sách các chi nhánh thuộc khu vực và thêm món ăn nếu chưa tồn tại
     INSERT INTO BranchDish (branch, dish, isServed)
