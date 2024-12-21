@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Tính phí ship dựa trên khoảng cách
 CREATE OR ALTER FUNCTION fn_CalculateShipCost(
     @distanceKm INT
 )
@@ -12,10 +11,10 @@ BEGIN
     DECLARE @freeDistance INT
     DECLARE @costPerKm DECIMAL(10,2)
 
-    -- Lấy các thông số từ bảng Const
+    -- Get const
     SELECT @freeDistance = freeDistance, @costPerKm = costPerKm FROM Const
 
-    -- Nếu vượt quá khoảng cách miễn phí thì tính phí
+    -- Calculate ship cost
     IF @distanceKm > @freeDistance
         SET @result = (@distanceKm - @freeDistance) * @costPerKm
 
@@ -23,29 +22,6 @@ BEGIN
 END
 GO
 
--- TODO: Cập nhật giá trị hóa đơn
-CREATE OR ALTER PROCEDURE sp_UpdateInvoicePayment
-    @invoiceId INT
-AS
-BEGIN
-    DECLARE @total DECIMAL(18, 0)
-    DECLARE @dishDiscount DECIMAL(18, 0)
-    DECLARE @shipCost DECIMAL(18, 0)
-    DECLARE @shipDiscount DECIMAL(18, 0)
-
-    -- Lấy các thông số
-    SELECT @total = total, @dishDiscount = dishDiscount, @shipCost = shipCost, @shipDiscount = shipDiscount
-    FROM Invoice
-    WHERE id = @invoiceId
-
-    -- Cập nhật giá trị hóa đơn
-    UPDATE Invoice
-    SET totalPayment = (@total - @dishDiscount) + (@shipCost - @shipDiscount)
-    WHERE id = @invoiceId
-END
-GO
-
--- TODO: Cập nhật điểm khách hàng và hạng thẻ
 CREATE OR ALTER PROCEDURE sp_UpdateCustomerPoint
     @invoiceId INT
 AS
@@ -56,28 +32,28 @@ BEGIN
     DECLARE @currentType CHAR(1)
     DECLARE @upgradeAt DATE
 
-    -- Lấy thông tin khách hàng
+    -- Get customer
     DECLARE @customerId INT
     SELECT @customerId = customer FROM Invoice WHERE id = @invoiceId
 
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId 
 
-    -- Lấy thông tin điểm và hạng thẻ hiện tại
+    -- Get current point and type
     SELECT @currentPoint = point, @currentType = type, @upgradeAt = upgradeAt FROM Customer WHERE id = @customerId
 
-    -- Lấy điểm từ hóa đơn
+    -- Get point from total payment
     DECLARE @point INT
     SELECT @point = CAST(totalPayment/100000 AS INT) FROM Invoice WHERE id = @invoiceId
 
-    -- Tính điểm mới
+    -- Update point
     SET @currentPoint = @currentPoint + @point
 
-    -- Xử lý logic dựa trên hạng thẻ hiện tại
+    -- Check upgrade/downgrade card
     DECLARE @isUpgrade BIT = 0
     DECLARE @newType CHAR(1) = @currentType
 
     IF @currentType = 'M'
-        IF @currentPoint >= 100 -- Điều kiện lên hạng SILVER
+        IF @currentPoint >= 100 -- Condition to upgrade to Silver
         BEGIN
             SET @newType = 'S'
             SET @isUpgrade = 1
@@ -87,9 +63,9 @@ BEGIN
     BEGIN
         IF DATEDIFF(YEAR, @upgradeAt, GETDATE()) >= 1
         BEGIN
-            IF @currentPoint < 50 -- Điều kiện tuột xuống Membership
+            IF @currentPoint < 50 -- Condition to downgrade to Member
                 SET @newType = 'M'
-            ELSE IF @currentPoint >= 100 -- Điều kiện nâng hạng lên Gold
+            ELSE IF @currentPoint >= 100 -- Condition to upgrade to Gold
             BEGIN
                 SET @newType = 'G'
                 SET @isUpgrade = 1
@@ -101,19 +77,18 @@ BEGIN
     BEGIN
         IF DATEDIFF(YEAR, @upgradeAt, GETDATE()) >= 1
         BEGIN
-            IF @currentPoint < 100 -- Điều kiện tuột xuống Silver
+            IF @currentPoint < 100 -- Condition to downgrade to Silver
                 SET @newType = 'S'
         END
     END
 
-    -- Cập nhật điểm và hạng thẻ mới
+    -- Update customer
     UPDATE Customer
     SET point = @currentPoint, type = @newType, upgradeAt = CASE WHEN @isUpgrade = 1 THEN GETDATE() ELSE @upgradeAt END
     WHERE id = @customerId
 END
 GO
 
--- TODO: Áp dụng discount cho hóa đơn
 CREATE OR ALTER PROCEDURE sp_ApplyDiscount
     @invoiceId INT
 AS
@@ -121,20 +96,20 @@ BEGIN
     EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'completed'
 
-    -- Lấy thông tin khách hàng
+    -- Get customer
     DECLARE @customerId INT
     SELECT @customerId = customer FROM Invoice WHERE id = @invoiceId
 
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId 
 
-    -- Lấy thông tin invoice
+    -- Get invoice total and ship cost
     DECLARE @total DECIMAL(10,2), @shipCost DECIMAL(10,2), @customerType TINYINT
     SELECT @total = total, @shipCost = shipCost, @customerType = c.type
     FROM Invoice i
     LEFT JOIN Customer c ON i.customer = c.id
     WHERE i.id = @invoiceId
 
-    -- Lấy thông tin discount
+    -- Get discount
     DECLARE @shipDiscount INT, @dishDiscount INT
 
     SELECT @shipDiscount = CASE 
@@ -153,15 +128,17 @@ BEGIN
     END
     FROM Const
    
-    -- Áp dụng discount cho món ăn và vận chuyển
+    -- Update invoice
     UPDATE Invoice
     SET 
         dishDiscount = @total * @dishDiscount / 100,
         shipDiscount = @shipCost * @shipDiscount / 100
     WHERE id = @invoiceId
 	
-	-- Cập nhật lại thông tin thanh toán cho invoice
-    EXEC dbo.sp_UpdateInvoicePayment @invoiceId = @invoiceId
+	-- Update total
+    UPDATE Invoice
+    SET totalPayment = total - dishDiscount - shipDiscount
+    WHERE id = @invoiceId
 END
 GO
 

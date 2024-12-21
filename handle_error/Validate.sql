@@ -1,10 +1,9 @@
 USE SSMORI
 GO
 
--- TODO: Kiểm tra sự tồn tại của các bản ghi
 CREATE OR ALTER PROCEDURE sp_Validate
     @type NVARCHAR(50),
-    @id1 INT,
+    @id1 INT = NULL,
     @id2 INT = NULL,
     @id3 INT = NULL
 AS
@@ -17,8 +16,18 @@ BEGIN
     IF @type = 'branch_dish' AND NOT EXISTS (SELECT 1 FROM BranchDish WHERE branch = @id1 AND dish = @id2)
         THROW 50000, 'ERR_NO_BRANCH_DISH', 1;
 
-    IF @type = 'branch_dish_served' AND NOT EXISTS (SELECT 1 FROM BranchDish WHERE branch = @id1 AND dish = @id2 AND isServed = 1)
-        THROW 50000, 'ERR_DISH_NOT_SERVED', 1;
+    IF @type = 'region_dish' AND NOT EXISTS (SELECT 1 FROM RegionDish WHERE region = @id1 AND dish = @id2)
+        THROW 50000, 'ERR_NO_REGION_DISH', 1;
+
+    IF @type = 'branch_dish_served'
+        BEGIN
+            EXEC dbo.sp_Validate @type = 'branch_dish', @id1 = @id1, @id2 = @id2
+
+            DECLARE @region INT;
+            SELECT @region = region FROM Branch WHERE id = @id1;
+            
+            EXEC dbo.sp_Validate @type = 'region_dish', @id1 = @region, @id2 = @id2;
+        END;
     
     IF @type = 'branch_shipping' AND NOT EXISTS (SELECT 1 FROM Branch WHERE id = @id1 AND canShip = 1)
         THROW 50000, 'ERR_CANT_SHIP', 1;
@@ -61,6 +70,9 @@ BEGIN
 
     IF @type = 'table_invoice' AND NOT EXISTS (SELECT 1 FROM BranchTable WHERE branch = @id1 AND tbl = @id2 AND invoice = @id3)
         THROW 50000, 'ERR_TABLE_INVOICE_MISMATCH', 1;
+
+    IF @type = 'dish_invoice' AND NOT EXISTS (SELECT 1 FROM InvoiceDetail WHERE invoice = @id1 AND dish = @id2)
+        THROW 50000, 'ERR_DISH_INVOICE', 1;
 
     -- * Relate to menu
     IF @type = 'dish' AND NOT EXISTS (SELECT 1 FROM Dish WHERE id = @id1 AND isDeleted = 0)

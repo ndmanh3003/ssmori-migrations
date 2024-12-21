@@ -1,34 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Thêm stream mới
-CREATE OR ALTER PROC sp_AddStream
-    @duration INT
-AS
-BEGIN
-    EXEC dbo.sp_CheckDuration @duration = @duration;
-
-    -- Làm tròn thời gian hiện tại về phút
-    DECLARE @accessAt DATETIME = DATEADD(MINUTE, DATEDIFF(MINUTE, 0, GETDATE()), 0);
-
-    -- Kiểm tra xem đã có stream nào cùng thời gian truy cập chưa
-    IF EXISTS (SELECT 1 FROM Stream WHERE accessAt = @accessAt)
-    BEGIN
-        UPDATE Stream
-        SET
-            avgDuration = ((avgDuration * quantity) + @duration) / (quantity + 1),
-            quantity = quantity + 1
-        WHERE accessAt = @accessAt;
-    END
-    ELSE
-    BEGIN
-        -- Chèn bản ghi mới nếu không tồn tại
-        INSERT INTO Stream (accessAt, avgDuration, quantity)
-        VALUES (@accessAt, @duration, 1);
-    END
-END
-GO
-
 -- TODO: Gửi mã OTP
 CREATE OR ALTER PROC sp_SendOtp
     @phone VARCHAR(15),
@@ -87,7 +59,7 @@ BEGIN
     SELECT @issueAt = issueAt FROM Otp WHERE phone = @phone AND type = @type;
 
     DECLARE @timeCanSend DATETIME 
-    SET @timeCanSend= DATEADD(SECOND, 30, @issueAt)
+    SET @timeCanSend = DATEADD(SECOND, 30, @issueAt)
 
     IF @timeCanSend > GETDATE()
         SET @time = DATEDIFF(SECOND, GETDATE(), @timeCanSend)

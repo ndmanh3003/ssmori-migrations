@@ -36,17 +36,14 @@ GO
 -- TODO: Thêm khách hàng mới
 CREATE OR ALTER PROCEDURE sp_CreateCustomer
     @name NVARCHAR(100),
-    @cid NVARCHAR(20),
     @phone VARCHAR(15),
     @email VARCHAR(100),
-    @gender CHAR(1),
-    @employeeId INT
+    @gender CHAR(1)
 AS
 BEGIN
     EXEC dbo.sp_ValidateUnique @type = 'customer_cid', @unique = @cid
     EXEC dbo.sp_ValidateUnique @type = 'customer_phone', @unique = @phone
     EXEC dbo.sp_ValidateUnique @type = 'customer_email', @unique = @email
-    EXEC dbo.sp_Validate @type = 'employee', @id1 = @employeeId
 
     -- Thêm khách hàng mới
     INSERT INTO Customer (name, cid, phone, email, gender, type, point, upgradeAt)
@@ -58,8 +55,6 @@ GO
 CREATE OR ALTER PROCEDURE sp_UpdateCustomer
     @customerId INT,              
     @name NVARCHAR(100) = NULL,   
-    @cid NVARCHAR(20) = NULL,     
-    @phone VARCHAR(15) = NULL,    
     @email VARCHAR(100) = NULL,   
     @gender CHAR(1) = NULL        
 AS
@@ -72,8 +67,6 @@ BEGIN
     -- Cập nhật thông tin khách hàng
     UPDATE Customer
     SET name = COALESCE(@name, name),
-        cid = COALESCE(@cid, cid),
-        phone = COALESCE(@phone, phone),
         email = COALESCE(@email, email),
         gender = COALESCE(@gender, gender)
     WHERE id = @customerId;

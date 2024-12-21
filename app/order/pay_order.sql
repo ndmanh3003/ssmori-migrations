@@ -1,22 +1,18 @@
 USE SSMORI
 GO
 
--- TODO: Xác nhận thanh toán hóa đơn
-CREATE OR ALTER PROCEDURE sp_ConfirmPayment
-    @invoiceId INT,
-    @tbl INT
+CREATE OR ALTER PROCEDURE sp_PayOrder
+    @invoiceId INT
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
-    EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'ready'
+    EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'issued'
 
-    -- Lấy thông tin invoice
+    -- Get invoice total and branch
     DECLARE @total DECIMAL(10,2), @branchId INT
     SELECT @total = totalPayment, @branchId = branch FROM Invoice WHERE id = @invoiceId
     
-    EXEC dbo.sp_Validate @type = 'table_invoice', @id1 = @branchId, @id2 = @tbl, @id3 = @invoiceId
-
-    -- Cập nhật thống kê doanh thu theo ngày
+    -- Update statics revenue date
     MERGE StaticsRevenueDate AS target
     USING (SELECT @branchId as branch, CAST(GETDATE() AS DATE) as date) AS source
     ON target.branch = source.branch AND target.date = source.date
@@ -28,7 +24,7 @@ BEGIN
         INSERT (branch, date, totalInvoice, totalValue)
         VALUES (@branchId, CAST(GETDATE() AS DATE), 1, @total);
 
-    -- Cập nhật thống kê món ăn theo tháng
+    -- Update statics dish month
     MERGE StaticsDishMonth AS target
     USING (
         SELECT 
@@ -48,11 +44,10 @@ BEGIN
         INSERT (branch, date, dish, totalDish)
         VALUES (source.branch, source.date, source.dish, source.totalQuantity);
 
-    -- Cập nhật điểm khách hàng và hạng thẻ
+    -- Update customer point
     EXEC dbo.sp_UpdateCustomerPoint @invoiceId
 
-    -- Cập nhật trạng thái hóa đơn
-    UPDATE BranchTable SET invoice = NULL WHERE branch = @branchId AND tbl = @tbl
+    -- Update invoice status
     UPDATE Invoice SET status = 'paid' WHERE id = @invoiceId
 END
 GO

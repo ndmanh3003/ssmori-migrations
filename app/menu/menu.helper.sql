@@ -1,6 +1,7 @@
 USE SSMORI
 GO
 
+-- TODO: Xóa món ăn liên quan
 CREATE OR ALTER PROCEDURE sp_DeleteRelate2Dish
     @dishId  INT
 AS

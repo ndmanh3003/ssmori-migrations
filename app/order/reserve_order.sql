@@ -1,14 +1,13 @@
 USE SSMORI
 GO
 
--- TODO: Tạo hóa đơn đặt bàn
 CREATE OR ALTER PROCEDURE sp_CreateReserveOrder
     @branchId INT,
+    @orderAt DATETIME = NULL,
 	@guestCount INT,
     @bookingAt DATETIME,
     @phone VARCHAR(15),
-    @customerId INT = NULL,
-    @invoiceId INT OUTPUT
+    @customerId INT = NULL
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
@@ -16,35 +15,40 @@ BEGIN
     IF @customerId IS NOT NULL
         EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
-    -- Tạo invoice mới
+    -- Create reserve order
     INSERT INTO Invoice (status, orderAt, customer, branch, type)
-    VALUES ('ordering', GETDATE(), @customerId, @branchId, 'R')
+    VALUES ('submitted', COALESCE(@orderAt, GETDATE()), @customerId, @branchId, 'R')
 
     SET @invoiceId = SCOPE_IDENTITY()
 
-    -- Tạo thông tin đặt bàn
     INSERT INTO InvoiceReserve (invoice, guestCount, bookingAt, phone)
     VALUES (@invoiceId, @guestCount, @bookingAt, @phone)
 END
 GO
 
--- TODO: Cập nhật thông tin đặt bàn
-CREATE OR ALTER PROCEDURE sp_UpdateReserveOrder
-    @invoiceId INT,
-    @guestCount INT = NULL,
-    @bookingAt DATETIME = NULL,
-    @phone VARCHAR(15) = NULL
+CREATE OR ALTER PROCEDURE sp_ServeOrder
+    @invoiceId INT = NULL,
+    @orderAt DATETIME = NULL,
+    @status NVARCHAR(15) = NULL,
+    @customerId INT = NULL,
+    @branchId INT = NULL
 AS
 BEGIN
-    EXEC dbo.sp_Validate @type = 'invoice_reserve', @id1 = @invoiceId
-    IF @bookingAt IS NOT NULL 
-        EXEC dbo.sp_CheckFutureTime @time = @bookingAt
+    IF @invoiceId IS NOT NULL
+    BEGIN
+        EXEC dbo.sp_Validate @type = 'invoice_reserve', @id1 = @invoiceId
+        EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'submitted'
 
-    -- Cập nhật thông tin đặt bàn
-    UPDATE InvoiceReserve
-    SET guestCount = COALESCE(@guestCount, guestCount),
-        bookingAt = COALESCE(@bookingAt, bookingAt),
-        phone = COALESCE(@phone, phone)
-    WHERE invoice = @invoiceId
+        -- Update invoice status
+        UPDATE Invoice SET status = 'draft' WHERE id = @invoiceId
+        RETURN
+    END
+
+    EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
+    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
+
+    -- Serve order
+    INSERT INTO Invoice (status, orderAt, customer, branch, type)
+    VALUES ('draft', COALESCE(@orderAt, GETDATE()), @customerId, @branchId, 'W')
 END
 GO

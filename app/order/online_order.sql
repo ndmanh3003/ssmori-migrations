@@ -1,10 +1,10 @@
 USE SSMORI
 GO
 
--- TODO: Tạo đơn hàng online
 CREATE OR ALTER PROCEDURE sp_CreateOnlineOrder
     @phone VARCHAR(15),
     @address NVARCHAR(255),
+    @orderAt DATETIME = NULL,
     @distanceKm INT,
     @branchId INT,
     @customerId INT = NULL,
@@ -15,24 +15,21 @@ BEGIN
     IF @customerId IS NOT NULL
         EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
-    -- Tính phí ship và tạo invoice mới
+    -- Calculate ship cost
     DECLARE @shipCost DECIMAL(10,2) 
     SET @shipCost = dbo.fn_CalculateShipCost(@distanceKm)
 
-    INSERT INTO Invoice (status, orderAt, customer, branch, type, shipCost)
-    VALUES (0, GETDATE(), @customerId, @branchId, 'O', @shipCost)
+    INSERT INTO Invoice (orderAt, customer, branch, type, shipCost)
+    VALUES (COALESCE(@orderAt, GETDATE()), @customerId, @branchId, 'O', @shipCost)
 
     SET @invoiceId = SCOPE_IDENTITY()
 
-    EXEC dbo.sp_UpdateInvoicePayment @invoiceId = @invoiceId
-
-    -- Tạo thông tin giao hàng
+    -- Create online order
     INSERT INTO InvoiceOnline (invoice, phone, address, distanceKm)
     VALUES (@invoiceId, @phone, @address, @distanceKm)
 END
 GO
 
--- TODO: Cập nhật thông tin đơn hàng online
 CREATE OR ALTER PROCEDURE sp_UpdateOnlineOrder
     @invoiceId INT,
     @phone VARCHAR(15) = NULL,
@@ -41,15 +38,16 @@ CREATE OR ALTER PROCEDURE sp_UpdateOnlineOrder
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'invoice_online', @id1 = @invoiceId
+    EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'draft'
 
-    -- Cập nhật thông tin giao hàng
+    -- Update online order
     UPDATE InvoiceOnline
     SET phone = COALESCE(@phone, phone),
         address = COALESCE(@address, address),
         distanceKm = COALESCE(@distanceKm, distanceKm)
     WHERE invoice = @invoiceId
 
-    -- Cập nhật phí ship nếu có thay đổi khoảng cách
+    -- Update ship cost
     IF @distanceKm IS NOT NULL
     BEGIN
         DECLARE @shipCost DECIMAL(10,2)
