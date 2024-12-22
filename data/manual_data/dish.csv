@@ -1,0 +1,23 @@
+﻿id,isCombo,canShip,nameVn,nameEn,price,image
+1,FALSE,TRUE,Cá ngừ đại dương,Ocean Tuna,300000,1KuVhTi60MggnmfFxbN8IAW9JXQAE7JcW
+2,FALSE,TRUE,Cơm cuộn cá hồi tôm chiên,Salmon and Shrimp Tempura Rolls,100000,1w2Kbd0sFkWHDK6OdYBHCvVUpoJPIdYPO
+3,FALSE,TRUE,Cá hồi Na Uy,Norwegian Salmon,350000,1n546PGzrnLDU1uKkiTPkqtAcetKpQq5M
+4,FALSE,TRUE,Cơm cuộn lươn hun khói,Smoked Eel Roll,120000,1F0BhMf5fLn1Ei-OjJtnZPhcucIS8mXQj
+5,FALSE,TRUE,Cá hồi sò điệp,Salmon and Scallops,200000,15Q_x28Y2yhCDLjE4kUQ9-f_7XTGQoLzm
+6,FALSE,TRUE,Bạch tuộc Nhật Bản,Japanese Octopus,300000,11Yrx-V6-IzvvMYCSAX9n7LGmejhrrUl8
+7,FALSE,FALSE,Tôm chiên bột tempura,Tempura Fried Shrimp,150000,1a0U3zicMnnF5cIVtY5fd4JF1nd1ucm3i
+8,FALSE,TRUE,Sò đỏ Nhật Bản,Japanese Red Clams,250000,1C75aomZTHySFyCnrsjTFkzMwGgoX4wkZ
+9,FALSE,TRUE,Maki Cơm cuộn cá hồi,Salmon Maki Roll,150000,1e1N4ogpmeapYioXaZFtPUnyC9tBa-Icd
+10,FALSE,TRUE,Lươn hun khói Nhật Bản,Smoked Japanese Eel,200000,1BRcW0cAjxBgfqEeiVfw7MVAW1HWB4dDp
+11,FALSE,FALSE,Cá hồi và phô mai chiên giòn,Crispy Fried Salmon and Cheese,150000,1hNRnKHGkimG_BY3ov-v_YXZBQkJwyGIP
+12,FALSE,TRUE,Cá hồi trứng cá chuồn,Salmon and Fish Roe,200000,1cpOriYbrJaReSEFlK5F_hdugVRTFRBzU
+13,FALSE,FALSE,Tôm sú biển thiên nhiên,Natural Wild Sea Prawns,300000,1zijTnmOqQLiZLv4V-IcP90VOGDMahnQF
+14,FALSE,TRUE,Cá trích Nhật Bản,Japanese Herring,150000,1Wd51V9oLEhoh6eNRnTWRuvABUnai2laL
+15,FALSE,FALSE,Trứng cá chuồn Nhật Bản,Japanese Fish Roe,400000,1jxuba7RWfPMfiL8AzO6r6VN2qBbAnX4Z
+16,FALSE,TRUE,Cá ngừ vây xanh Nhật Bản,Japanese Bluefin Tuna,600000,1m0TZ9MgerpZYxpjPfaMQkt227j8s4Nzm
+17,FALSE,TRUE,Gan cá sashimi,Sashimi Fish Liver,150000,1Wj64yQy7e_l4x_WL33Phb_7fJxjJVIpx
+18,FALSE,TRUE,Bạch tuộc trộn,Octopus Salad,120000,1G-mb8spDyHSy9ky0YJA6-iaZ2MKVi-Ci
+19,FALSE,TRUE,Cơm cuộn dưa leo,Cucumber Roll,50000,1RYbrXjF8hyhtZ_3nPyEFqL85mJxeZpcj
+20,FALSE,TRUE,Cá Saba ngâm giấm,Vinegar-Pickled Saba Fish,120000,1C6yRBuLPtc17b6GCM-RyK5UAF3qi-sQO
+21,TRUE,FALSE,Hải sản thượng hạng,Seafood Deluxe,1250000,1LYiUuC-_TYW7L7mQ5qURg11ArlfBfHWj
+22,TRUE,TRUE,Tiệc cơm cuộn và tempura,Rolls and Tempura Feast,500000,1o8WHlLSc2gDv3KeOwtKeFLlT19tviuW6
