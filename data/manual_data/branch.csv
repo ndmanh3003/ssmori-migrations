@@ -1,16 +1,16 @@
-﻿id,region,name,address,openTime,closeTime,phone,hasMotoPark,hasCarPark,canShip,floorQuantity,image
-1,1,Mori Quận 1,"123 Lê Lợi, Quận 1",8:00,22:00,19001523,FALSE,TRUE,TRUE,3,1CUdmmAXNWssnP3dP5edcyp_9r4y7eYr1
-2,1,Mori Thảo Điền,"45 Nguyễn Văn Hưởng, Quận 2",8:00,22:00,19001523,TRUE,TRUE,FALSE,2,1RRLFxlQ6Hr7sOSp5WblKJYYgeXMR6s78
-3,1,Mori Quận 3,"78 Võ Văn Tần, Quận 3",8:00,22:00,19001523,FALSE,TRUE,FALSE,3,1PWzrJAlZjOtBG-qSP3_NUv3-3h3IkFwD
-4,1,Mori Gò Vấp,"112 Phạm Văn Chiêu, Quận Gò Vấp",8:00,22:00,19001523,TRUE,FALSE,TRUE,2,1QsU0tu1uE5KJE5C6MOiXP5Gtwbx9Itds
-5,1,Mori Phú Mỹ Hưng,"90 Nguyễn Đức Cảnh, Quận 7",8:00,22:00,19001523,TRUE,FALSE,TRUE,1,1GZrGo0aiM8MetxArGlrqzb2ZFXhF-oj7
-6,1,Mori Tân Bình,"56 Hoàng Hoa Thám, Quận Tân Bình",8:00,22:00,19001523,TRUE,TRUE,TRUE,2,1PWzrJAlZjOtBG-qSP3_NUv3-3h3IkFwD
-7,1,Mori Bình Thạnh,"34 Đinh Tiên Hoàng, Quận Bình Thạnh",8:00,22:00,19001523,FALSE,TRUE,TRUE,1,1GZrGo0aiM8MetxArGlrqzb2ZFXhF-oj7
-8,2,Mori Hoàn Kiếm,"25 Hàng Bạc, Quận Hoàn Kiếm",8:00,22:00,19001523,TRUE,FALSE,TRUE,2,1QsU0tu1uE5KJE5C6MOiXP5Gtwbx9Itds
-9,2,Mori Đống Đa,"72 Tây Sơn, Quận Đống Đa",8:00,22:00,19001523,TRUE,TRUE,FALSE,1,1PWzrJAlZjOtBG-qSP3_NUv3-3h3IkFwD
-10,2,Mori Cầu Giấy,"150 Trần Duy Hưng, Quận Cầu Giấy",8:00,22:00,19001523,TRUE,TRUE,TRUE,2,1QsU0tu1uE5KJE5C6MOiXP5Gtwbx9Itds
-11,2,Mori Long Biên,"88 Ngọc Lâm, Quận Long Biên",8:00,22:00,19001523,FALSE,TRUE,TRUE,2,16doyCVkk6SKlClI20la1IaMT1hQx8_T7
-12,2,Mori Hà Đông,"105 Quang Trung, Quận Hà Đông",8:00,22:00,19001523,TRUE,FALSE,TRUE,1,1PWzrJAlZjOtBG-qSP3_NUv3-3h3IkFwD
-13,3,Mori Hải Châu,"45 Nguyễn Văn Linh, Quận Hải Châu",8:00,22:00,19001523,TRUE,FALSE,TRUE,2,16doyCVkk6SKlClI20la1IaMT1hQx8_T7
-14,3,Mori Sơn Trà,"123 Võ Nguyên Giáp, Quận Sơn Trà",8:00,22:00,19001523,TRUE,TRUE,FALSE,3,1PWzrJAlZjOtBG-qSP3_NUv3-3h3IkFwD
-15,3,Mori Ngũ Hành Sơn,"90 Trần Hưng Đạo, Quận Ngũ Hành Sơn",8:00,22:00,19001523,TRUE,FALSE,TRUE,1,1RRLFxlQ6Hr7sOSp5WblKJYYgeXMR6s78
+﻿id,region,name,address,openTime,closeTime,phone,hasMotoPark,hasCarPark,canShip
+1,1,Mori Quận 1,"123 Lê Lợi, Quận 1",8:00,22:00,19001523,FALSE,TRUE,TRUE
+2,1,Mori Thảo Điền,"45 Nguyễn Văn Hưởng, Quận 2",8:00,22:00,19001524,TRUE,TRUE,FALSE
+3,1,Mori Quận 3,"78 Võ Văn Tần, Quận 3",8:00,22:00,19001525,FALSE,TRUE,FALSE
+4,1,Mori Gò Vấp,"112 Phạm Văn Chiêu, Quận Gò Vấp",8:00,22:00,19001526,TRUE,FALSE,TRUE
+5,1,Mori Phú Mỹ Hưng,"90 Nguyễn Đức Cảnh, Quận 7",8:00,22:00,19001527,TRUE,FALSE,TRUE
+6,1,Mori Tân Bình,"56 Hoàng Hoa Thám, Quận Tân Bình",8:00,22:00,19001528,TRUE,TRUE,TRUE
+7,1,Mori Bình Thạnh,"34 Đinh Tiên Hoàng, Quận Bình Thạnh",8:00,22:00,19001529,FALSE,TRUE,TRUE
+8,2,Mori Hoàn Kiếm,"25 Hàng Bạc, Quận Hoàn Kiếm",8:00,22:00,19001530,TRUE,FALSE,TRUE
+9,2,Mori Đống Đa,"72 Tây Sơn, Quận Đống Đa",8:00,22:00,19001531,TRUE,TRUE,FALSE
+10,2,Mori Cầu Giấy,"150 Trần Duy Hưng, Quận Cầu Giấy",8:00,22:00,19001532,TRUE,TRUE,TRUE
+11,2,Mori Long Biên,"88 Ngọc Lâm, Quận Long Biên",8:00,22:00,19001533,FALSE,TRUE,TRUE
+12,2,Mori Hà Đông,"105 Quang Trung, Quận Hà Đông",8:00,22:00,19001534,TRUE,FALSE,TRUE
+13,3,Mori Hải Châu,"45 Nguyễn Văn Linh, Quận Hải Châu",8:00,22:00,19001535,TRUE,FALSE,TRUE
+14,3,Mori Sơn Trà,"123 Võ Nguyên Giáp, Quận Sơn Trà",8:00,22:00,19001536,TRUE,TRUE,FALSE
+15,3,Mori Ngũ Hành Sơn,"90 Trần Hưng Đạo, Quận Ngũ Hành Sơn",8:00,22:00,19001537,TRUE,FALSE,TRUE

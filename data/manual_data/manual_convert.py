@@ -9,9 +9,24 @@ def csv_to_sql_insert(file_paths):
     :return: A string containing SQL INSERT statements.
     """
     insert_statements = []
+    identity_list = ['Region', 'Branch', 'Card', 'Dish', 'Customer', 'Category', 'Invoice']
+
+    for file_path in reversed(file_paths):
+        table_name = os.path.splitext(os.path.basename(file_path))[0]
+        insert_statements.append(f"DELETE FROM {table_name};")
+    # Add DELETE and DBCC CHECKIDENT for all tables first
+    for file_path in file_paths:
+        table_name = os.path.splitext(os.path.basename(file_path))[0]  # Use file name (without extension) as table name
+        if table_name in identity_list:
+            insert_statements.append(f"DBCC CHECKIDENT ('{table_name}', RESEED, 0);")
+        
+    insert_statements.append(f"GO")
 
     for file_path in file_paths:
         table_name = os.path.splitext(os.path.basename(file_path))[0]  # Use file name (without extension) as table name
+        if table_name in identity_list:
+            insert_statements.append(f"SET IDENTITY_INSERT {table_name} ON")
+        
         with open(file_path, mode='r', encoding='utf-8-sig') as file:
             reader = csv.reader(file)
             headers = next(reader)  # Read the first row as column names
@@ -34,11 +49,16 @@ def csv_to_sql_insert(file_paths):
                 insert_statement = f"INSERT INTO {table_name} ({', '.join(headers)}) VALUES ({', '.join(values)});"
                 insert_statements.append(insert_statement)
 
+        # Add GO at the end of the statements for this table
+        if table_name in identity_list:
+            insert_statements.append(f"SET IDENTITY_INSERT {table_name} OFF")
+        insert_statements.append("GO")
+
     return '\n'.join(insert_statements)
 
 
 # Example usage
-file_paths = ['region.csv', 'branch.csv', 'category.csv', 'dish.csv', 'category_dish.csv', 'combo_dish.csv']  # List of your CSV files
+file_paths = ['Region.csv', 'Branch.csv', 'Category.csv', 'Dish.csv', 'CategoryDish.csv', 'ComboDish.csv']  # List of your CSV files
 sql_statements = csv_to_sql_insert(file_paths)
 
 # Save the output to a file or print it

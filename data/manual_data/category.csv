@@ -1,5 +1,4 @@
-﻿id,name,total
-1,Seafood,10
-2,Tempura,6
-3,Premium,7
-0,Combo,2
+﻿id,name
+1,Seafood
+2,Tempura
+3,Premium
