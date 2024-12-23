@@ -19,6 +19,7 @@ BEGIN
     INSERT INTO Invoice (status, orderAt, customer, branch, type)
     VALUES ('submitted', COALESCE(@orderAt, GETDATE()), @customerId, @branchId, 'R')
 
+    DECLARE @invoiceId INT
     SET @invoiceId = SCOPE_IDENTITY()
 
     INSERT INTO InvoiceReserve (invoice, guestCount, bookingAt, phone)
@@ -26,7 +27,7 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE sp_ServeOrder
+CREATE OR ALTER PROCEDURE sp_CreateOffOrder
     @invoiceId INT = NULL,
     @orderAt DATETIME = NULL,
     @status NVARCHAR(15) = NULL,

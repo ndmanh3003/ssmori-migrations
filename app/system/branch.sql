@@ -10,8 +10,6 @@ CREATE OR ALTER PROC sp_CreateBranch
     @phone NVARCHAR(20),
     @hasMotoPark BIT,
     @hasCarPark BIT,
-    @tableQuantity INT,
-    @floorQuantity INT,
     @canShip BIT,
     @regionId INT
 AS
@@ -22,33 +20,8 @@ BEGIN
 	EXEC dbo.sp_ValidateUnique @type = 'branch_phone', @unique = @phone
 
     -- Tạo branch
-    INSERT INTO Branch (name, address, openTime, closeTime, phone, hasMotoPark, hasCarPark, tableQuantity, floorQuantity, canShip, region)
-    VALUES (@name, @address, @openTime, @closeTime, @phone, @hasMotoPark, @hasCarPark, @tableQuantity, @floorQuantity, @canShip, @regionId)
-
-    DECLARE @branchId INT = SCOPE_IDENTITY();
-
-    -- Tạo records trong BranchTable
-    DECLARE @totalTables INT = 20 + @floorQuantity * @tableQuantity
-    DECLARE @counter INT = 1
-
-    WHILE @counter <= @totalTables 
-    BEGIN
-        INSERT INTO BranchTable (branch, tbl)
-        VALUES (@branchId, @counter)
-        SET @counter = @counter + 1
-    END
-
-    -- Thêm món ăn
-    DECLARE @branch2 INT
-    SELECT TOP 1 @branch2 = id FROM Branch b WHERE b.region = @regionId AND b.isDeleted = 0 AND b.id != @branchId
-
-    IF @branch2 IS NOT NULL
-    BEGIN
-        INSERT INTO BranchDish (branch, dish, isServed)
-        SELECT @branchId, bd.dish, 1
-        FROM BranchDish bd
-        WHERE bd.branch = @branch2
-    END
+    INSERT INTO Branch (name, address, openTime, closeTime, phone, hasMotoPark, hasCarPark, canShip, region)
+    VALUES (@name, @address, @openTime, @closeTime, @phone, @hasMotoPark, @hasCarPark, @canShip, @regionId)
 END
 GO
 
@@ -62,8 +35,6 @@ CREATE OR ALTER PROC sp_UpdateBranch
     @phone NVARCHAR(20) = NULL,
     @hasMotoPark BIT = NULL,
     @hasCarPark BIT = NULL,
-    @tableQuantity INT = NULL,
-    @floorQuantity INT = NULL,
     @canShip BIT = NULL,
     @regionId INT = NULL
 AS
@@ -83,34 +54,9 @@ BEGIN
         phone = COALESCE(@phone, phone),
         hasMotoPark = COALESCE(@hasMotoPark, hasMotoPark),
         hasCarPark = COALESCE(@hasCarPark, hasCarPark),
-        tableQuantity = COALESCE(@tableQuantity, tableQuantity),
-        floorQuantity = COALESCE(@floorQuantity, floorQuantity),
         canShip = COALESCE(@canShip, canShip),
         region = COALESCE(@regionId, region)
     WHERE id = @branchId
-
-    -- Nếu có thay đổi tableQuantity hoặc floorQuantity, cập nhật BranchTable
-    IF @tableQuantity IS NOT NULL OR @floorQuantity IS NOT NULL
-    BEGIN
-        DECLARE @totalTables INT = 20 + @floorQuantity * @tableQuantity
-        DECLARE @currentTables INT = (SELECT COUNT(*) FROM BranchTable WHERE branch = @branchId)
-        DECLARE @counter INT = @currentTables + 1
-
-        IF @totalTables > @currentTables
-        BEGIN
-            WHILE @counter <= @totalTables 
-            BEGIN
-                INSERT INTO BranchTable (branch, tbl)
-                VALUES (@branchId, @counter)
-                SET @counter = @counter + 1
-            END
-        END
-        ELSE
-        BEGIN
-            DELETE FROM BranchTable
-            WHERE branch = @branchId AND tbl > @totalTables
-        END
-    END
 END
 GO
 
@@ -121,26 +67,11 @@ AS
 BEGIN
 	EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
 
-    -- Xóa branch
+    DELETE FROM BranchDish WHERE branch = @branchId
+
+    -- Cập nhật isDeleted để xoá branch
     UPDATE Branch
 	SET isDeleted = 1
 	WHERE id = @branchId
-
-	DELETE FROM BranchTable WHERE branch = @branchId
-	DELETE FROM BranchDish WHERE branch = @branchId
-
-    -- Thôi việc nhân viên trong chi nhánh
-    DECLARE @employeeId INT
-    DECLARE cur CURSOR FOR 
-        SELECT id FROM Employee WHERE branch = @branchId
-    OPEN cur
-    FETCH NEXT FROM cur INTO @employeeId
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        EXEC dbo.sp_LayOffEmployee @employeeId
-        FETCH NEXT FROM cur INTO @employeeId
-    END
-    CLOSE cur
-    DEALLOCATE cur
 END
 GO

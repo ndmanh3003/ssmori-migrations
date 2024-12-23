@@ -17,19 +17,19 @@ GO
 
 -- TODO: Tạo thẻ khách hàng mới
 CREATE OR ALTER PROCEDURE sp_CreateCustomerCard
-    @employeeId INT,
+    @branchId INT,
     @customerId INT
 AS
 BEGIN
-    EXEC dbo.sp_Validate @type = 'employee', @id1 = @employeeId
+    EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
     -- Đóng thẻ cũ của khách hàng (nếu có)
     EXEC dbo.sp_CloseCustomerCard @customerId = @customerId
 
     -- Tạo thẻ cho khách hàng
-    INSERT INTO Card (issueAt, isClosed, employee, customer)
-    VALUES (GETDATE(), 0, @employeeId, @customerId)
+    INSERT INTO Card (issueAt, isClosed, branch, customer)
+    VALUES (GETDATE(), 0, @branchId, @customerId)
 END
 GO
 
@@ -41,13 +41,12 @@ CREATE OR ALTER PROCEDURE sp_CreateCustomer
     @gender CHAR(1)
 AS
 BEGIN
-    EXEC dbo.sp_ValidateUnique @type = 'customer_cid', @unique = @cid
     EXEC dbo.sp_ValidateUnique @type = 'customer_phone', @unique = @phone
     EXEC dbo.sp_ValidateUnique @type = 'customer_email', @unique = @email
 
     -- Thêm khách hàng mới
-    INSERT INTO Customer (name, cid, phone, email, gender, type, point, upgradeAt)
-    VALUES (@name, @cid, @phone, @email, @gender, 'M', 0, GETDATE())
+    INSERT INTO Customer (name, phone, email, gender, type, point, upgradeAt)
+    VALUES (@name, @phone, @email, @gender, 'M', 0, GETDATE())
 END
 GO
 
@@ -59,10 +58,8 @@ CREATE OR ALTER PROCEDURE sp_UpdateCustomer
     @gender CHAR(1) = NULL        
 AS
 BEGIN
-    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId;
-    EXEC dbo.sp_ValidateUnique @type = 'customer_cid', @unique = @cid;
-    EXEC dbo.sp_ValidateUnique @type = 'customer_phone', @unique = @phone;
-    EXEC dbo.sp_ValidateUnique @type = 'customer_email', @unique = @email;
+    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
+    EXEC dbo.sp_ValidateUnique @type = 'customer_email', @unique = @email
 
     -- Cập nhật thông tin khách hàng
     UPDATE Customer
@@ -72,3 +69,56 @@ BEGIN
     WHERE id = @customerId;
 END
 GO
+
+
+
+CREATE OR ALTER PROCEDURE sp_DownCustomersRank
+AS
+BEGIN
+    -- Khai báo các biến để lưu trữ thông tin của khách hàng
+    DECLARE @CustomerID INT,
+            @CustomerType CHAR(1),
+            @CustomerPoint INT,
+            @UpgradeAt DATE;
+
+    -- Khai báo cursor để duyệt qua khách hàng cần xuống hạng
+    DECLARE CustomerCursor CURSOR FOR
+        SELECT id, type, point, upgradeAt
+        FROM Customer
+        WHERE 
+            DATEDIFF(DAY, upgradeAt, GETDATE()) > 365
+            AND (
+                (type = 'S' AND point < 50) OR 
+                (type = 'G' AND point < 100)
+            );
+
+    -- Mở cursor
+    OPEN CustomerCursor;
+
+    -- Lặp qua từng khách hàng
+    FETCH NEXT FROM CustomerCursor INTO @CustomerID, @CustomerType, @CustomerPoint, @UpgradeAt;
+
+    -- Lặp cho đến khi hết tất cả khách hàng
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Cập nhật hạng và điểm tích lũy của khách hàng
+        UPDATE Customer
+        SET 
+            type = CASE
+                WHEN @CustomerType = 'S' THEN 'M'
+                WHEN @CustomerType = 'G' THEN 'S'
+            END,
+            point = 0,
+            upgradeAt = GETDATE()
+        WHERE id = @CustomerID;
+
+        -- Lấy khách hàng tiếp theo trong cursor
+        FETCH NEXT FROM CustomerCursor INTO @CustomerID, @CustomerType, @CustomerPoint, @UpgradeAt;
+    END
+
+    -- Đóng cursor và giải phóng tài nguyên
+    CLOSE CustomerCursor;
+    DEALLOCATE CustomerCursor;
+END;
+GO
+

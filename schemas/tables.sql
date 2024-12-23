@@ -29,7 +29,6 @@ CREATE TABLE Customer (
     id					INT IDENTITY PRIMARY KEY,
 
     name				NVARCHAR(100) NOT NULL,
-    address				NVARCHAR(255) NOT NULL,
     phone				VARCHAR(15) UNIQUE NOT NULL,
     email				VARCHAR(100) UNIQUE NOT NULL CHECK(email LIKE '%@%.%'),
     gender				CHAR(1) CHECK (gender IN ('M', 'F', 'O')) NOT NULL, -- M: Male, F: Female, O: Other
@@ -192,7 +191,7 @@ CREATE TABLE Const (
 CREATE TABLE OTP (
     -- 6 digits OTP, 3 attempts, has 5 minutes to use, resend after 1 minute
     phone			    VARCHAR(15) NOT NULL PRIMARY KEY,
-    otp			        VARCHAR(6) NOT NULL,
+    otp			        VARBINARY(32) NOT NULL,
     expireAt		    DATETIME NOT NULL,
     attempt			    TINYINT DEFAULT 0 NOT NULL CHECK (attempt >= 0 AND attempt <= 3),
     type                CHAR(1) NOT NULL CHECK (type IN ('C', 'S', 'B')) -- C: Customer, S: System, B: Branch
