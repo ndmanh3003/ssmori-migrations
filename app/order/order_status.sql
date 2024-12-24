@@ -21,11 +21,11 @@ BEGIN
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'submitted'
 
     -- Update invoice status
-    UPDATE Invoice SET status = 'canceled', employee = @employeeId WHERE id = @invoiceId
+    UPDATE Invoice SET status = 'canceled' WHERE id = @invoiceId
 END
 GO
 
-CREATE OR ALTER PROCEDURE sp_IssueInvoice
+CREATE OR ALTER PROCEDURE sp_IssueOrder
     @invoiceId INT
 AS
 BEGIN

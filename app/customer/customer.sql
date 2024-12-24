@@ -1,39 +1,35 @@
 USE SSMORI
 GO
 
--- TODO: Đóng thẻ khách hàng
 CREATE OR ALTER PROCEDURE sp_CloseCustomerCard
     @customerId INT
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
-    -- Đóng thẻ của khách hàng
     UPDATE Card
     SET isClosed = 1
     WHERE customer = @customerId
 END
 GO
 
--- TODO: Tạo thẻ khách hàng mới
 CREATE OR ALTER PROCEDURE sp_CreateCustomerCard
-    @employeeId INT,
+    @branchId INT,
     @customerId INT
 AS
 BEGIN
-    EXEC dbo.sp_Validate @type = 'employee', @id1 = @employeeId
+    EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
-    -- Đóng thẻ cũ của khách hàng (nếu có)
+    -- Close existing card
     EXEC dbo.sp_CloseCustomerCard @customerId = @customerId
 
-    -- Tạo thẻ cho khách hàng
-    INSERT INTO Card (issueAt, isClosed, employee, customer)
-    VALUES (GETDATE(), 0, @employeeId, @customerId)
+    -- Create new card
+    INSERT INTO Card (issueAt, isClosed, branch, customer)
+    VALUES (GETDATE(), 0, @branchId, @customerId)
 END
 GO
 
--- TODO: Thêm khách hàng mới
 CREATE OR ALTER PROCEDURE sp_CreateCustomer
     @name NVARCHAR(100),
     @phone VARCHAR(15),
@@ -41,17 +37,15 @@ CREATE OR ALTER PROCEDURE sp_CreateCustomer
     @gender CHAR(1)
 AS
 BEGIN
-    EXEC dbo.sp_ValidateUnique @type = 'customer_cid', @unique = @cid
     EXEC dbo.sp_ValidateUnique @type = 'customer_phone', @unique = @phone
     EXEC dbo.sp_ValidateUnique @type = 'customer_email', @unique = @email
 
-    -- Thêm khách hàng mới
-    INSERT INTO Customer (name, cid, phone, email, gender, type, point, upgradeAt)
-    VALUES (@name, @cid, @phone, @email, @gender, 'M', 0, GETDATE())
+    -- Create new customer
+    INSERT INTO Customer (name, phone, email, gender, type, point, upgradeAt)
+    VALUES (@name, @phone, @email, @gender, 'M', 0, GETDATE())
 END
 GO
 
--- TODO: Cập nhật thông tin khách hàng
 CREATE OR ALTER PROCEDURE sp_UpdateCustomer
     @customerId INT,              
     @name NVARCHAR(100) = NULL,   
@@ -59,12 +53,10 @@ CREATE OR ALTER PROCEDURE sp_UpdateCustomer
     @gender CHAR(1) = NULL        
 AS
 BEGIN
-    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId;
-    EXEC dbo.sp_ValidateUnique @type = 'customer_cid', @unique = @cid;
-    EXEC dbo.sp_ValidateUnique @type = 'customer_phone', @unique = @phone;
-    EXEC dbo.sp_ValidateUnique @type = 'customer_email', @unique = @email;
+    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
+    EXEC dbo.sp_ValidateUnique @type = 'customer_email', @unique = @email
 
-    -- Cập nhật thông tin khách hàng
+    -- Update customer
     UPDATE Customer
     SET name = COALESCE(@name, name),
         email = COALESCE(@email, email),

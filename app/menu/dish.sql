@@ -1,33 +1,28 @@
 USE SSMORI
 GO
 
--- TODO: Thêm món ăn
 CREATE OR ALTER PROCEDURE sp_CreateDish
     @isCombo BIT = 0,          
     @nameVN NVARCHAR(100),     
-    @nameJP NVARCHAR(100),     
-    @description NVARCHAR(255),
+    @nameEN NVARCHAR(100),   
     @price DECIMAL(10, 2),     
     @canShip BIT = 0,          
     @img NVARCHAR(255) = NULL  
 AS
 BEGIN
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameVN', @unique = @nameVN;
-    EXEC dbo.sp_ValidateUnique @type = 'dish_nameJP', @unique = @nameJP;
+    EXEC dbo.sp_ValidateUnique @type = 'dish_nameEN', @unique = @nameEN;
 
-    -- Thêm món ăn mới vào bảng Dish
-    INSERT INTO Dish (isCombo, nameVN, nameJP, description, price, canShip, img)
-    VALUES (@isCombo, @nameVN, @nameJP, @description, @price, @canShip, @img);
+    -- Add new dish
+    INSERT INTO Dish (isCombo, nameVN, nameEN, price, canShip, img)
+    VALUES (@isCombo, @nameVN, @nameEN, @price, @canShip, @img);
 END
 GO
 
--- TODO: Cập nhật thông tin món ăn
 CREATE OR ALTER PROCEDURE sp_UpdateDish
-    @dishId INT,              
-    @isCombo BIT = NULL,      
+    @dishId INT,           
     @nameVN NVARCHAR(100) = NULL,   
-    @nameJP NVARCHAR(100) = NULL,   
-    @description NVARCHAR(255) = NULL, 
+    @nameEN NVARCHAR(100) = NULL,  
     @price DECIMAL(10, 2) = NULL,     
     @canShip BIT = NULL,      
     @img NVARCHAR(255) = NULL 
@@ -35,15 +30,13 @@ AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameVN', @unique = @nameVN;
-    EXEC dbo.sp_ValidateUnique @type = 'dish_nameJP', @unique = @nameJP;
+    EXEC dbo.sp_ValidateUnique @type = 'dish_nameEN', @unique = @nameEN;
 
-    -- Cập nhật thông tin món ăn
+    -- Update dish
     UPDATE Dish
     SET 
-        isCombo = COALESCE(@isCombo, isCombo),
         nameVN = COALESCE(@nameVN, nameVN),
-        nameJP = COALESCE(@nameJP, nameJP),
-        description = COALESCE(@description, description),
+        nameEN = COALESCE(@nameEN, nameEN),
         price = COALESCE(@price, price),
         canShip = COALESCE(@canShip, canShip),
         img = COALESCE(@img, img)
@@ -51,17 +44,16 @@ BEGIN
 END
 GO
 
--- TODO: Xóa món ăn
 CREATE OR ALTER PROCEDURE sp_DeleteDish
     @dishId INT
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
 
-    -- Xóa các table liên quan
-    EXEC dbo.sp_DeleteRelate2Dish @dishId = @dishId;
+    -- Delete related data
+    EXEC dbo.sp_DeleteRelateToDish @dishId = @dishId;
 
-    -- Đánh dấu đã xóa món ăn
+    -- Delete dish
     UPDATE Dish
     SET isDeleted = 1
     WHERE id = @dishId;

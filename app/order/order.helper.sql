@@ -23,68 +23,45 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE sp_UpdateCustomerPoint
-    @invoiceId INT
+    @customerId INT, 
+    @totalPayment DECIMAL(10,2)
 AS
 BEGIN
-    EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
-
     DECLARE @currentPoint INT
     DECLARE @currentType CHAR(1)
     DECLARE @upgradeAt DATE
 
-    -- Get customer
-    DECLARE @customerId INT
-    SELECT @customerId = customer FROM Invoice WHERE id = @invoiceId
-
-    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId 
-
     -- Get current point and type
-    SELECT @currentPoint = point, @currentType = type, @upgradeAt = upgradeAt FROM Customer WHERE id = @customerId
+    SELECT @currentPoint = point, @currentType = type, @upgradeAt = upgradeAt 
+    FROM Customer WHERE id = @customerId
 
     -- Get point from total payment
     DECLARE @point INT
-    SELECT @point = CAST(totalPayment/100000 AS INT) FROM Invoice WHERE id = @invoiceId
+    SELECT @point = CAST(@totalPayment/100000 AS INT)
 
     -- Update point
     SET @currentPoint = @currentPoint + @point
 
-    -- Check upgrade/downgrade card
-    DECLARE @isUpgrade BIT = 0
-    DECLARE @newType CHAR(1) = @currentType
-
+    -- Upgrade type
     IF @currentType = 'M'
         IF @currentPoint >= 100 -- Condition to upgrade to Silver
         BEGIN
-            SET @newType = 'S'
-            SET @isUpgrade = 1
+            SET @currentType = 'S'
+            SET @upgradeAt = GETDATE()
+            SET @currentPoint = @currentPoint - 100
         END
 
-    ELSE IF @currentType = 'S'
-    BEGIN
-        IF DATEDIFF(YEAR, @upgradeAt, GETDATE()) >= 1
+    IF @currentType = 'S'
+        IF @currentPoint >= 100 -- Condition to upgrade to Gold
         BEGIN
-            IF @currentPoint < 50 -- Condition to downgrade to Member
-                SET @newType = 'M'
-            ELSE IF @currentPoint >= 100 -- Condition to upgrade to Gold
-            BEGIN
-                SET @newType = 'G'
-                SET @isUpgrade = 1
-            END
+            SET @currentType = 'G'
+            SET @upgradeAt = GETDATE()
+            SET @currentPoint = @currentPoint - 100
         END
-    END
-    
-    ELSE IF @currentType = 'G'
-    BEGIN
-        IF DATEDIFF(YEAR, @upgradeAt, GETDATE()) >= 1
-        BEGIN
-            IF @currentPoint < 100 -- Condition to downgrade to Silver
-                SET @newType = 'S'
-        END
-    END
 
     -- Update customer
     UPDATE Customer
-    SET point = @currentPoint, type = @newType, upgradeAt = CASE WHEN @isUpgrade = 1 THEN GETDATE() ELSE @upgradeAt END
+    SET point = @currentPoint, type = @currentType, upgradeAt = @upgradeAt
     WHERE id = @customerId
 END
 GO
@@ -94,16 +71,13 @@ CREATE OR ALTER PROCEDURE sp_ApplyDiscount
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
-    EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'completed'
 
     -- Get customer
     DECLARE @customerId INT
     SELECT @customerId = customer FROM Invoice WHERE id = @invoiceId
 
-    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId 
-
     -- Get invoice total and ship cost
-    DECLARE @total DECIMAL(10,2), @shipCost DECIMAL(10,2), @customerType TINYINT
+    DECLARE @total DECIMAL(10,2), @shipCost DECIMAL(10,2), @customerType CHAR(1)
     SELECT @total = total, @shipCost = shipCost, @customerType = c.type
     FROM Invoice i
     LEFT JOIN Customer c ON i.customer = c.id
@@ -135,9 +109,9 @@ BEGIN
         shipDiscount = @shipCost * @shipDiscount / 100
     WHERE id = @invoiceId
 	
-	-- Update total
+	-- Update total payment
     UPDATE Invoice
-    SET totalPayment = total - dishDiscount - shipDiscount
+    SET totalPayment = total + shipCost - dishDiscount - shipDiscount
     WHERE id = @invoiceId
 END
 GO

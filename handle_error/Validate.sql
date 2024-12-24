@@ -23,26 +23,33 @@ BEGIN
         BEGIN
             EXEC dbo.sp_Validate @type = 'branch_dish', @id1 = @id1, @id2 = @id2
 
-            DECLARE @region INT;
-            SELECT @region = region FROM Branch WHERE id = @id1;
+            DECLARE @region1 INT;
+            SELECT @region1 = region FROM Branch WHERE id = @id1;
             
-            EXEC dbo.sp_Validate @type = 'region_dish', @id1 = @region, @id2 = @id2;
+            EXEC dbo.sp_Validate @type = 'region_dish', @id1 = @region1, @id2 = @id2;
+        END;
+
+    IF @type = 'branch_dish_shipping_served'
+        BEGIN
+            EXEC dbo.sp_Validate @type = 'branch_dish', @id1 = @id1, @id2 = @id2
+
+            DECLARE @region2 INT;
+            SELECT @region2 = region FROM Branch WHERE id = @id1;
+            
+            EXEC dbo.sp_Validate @type = 'region_dish', @id1 = @region2, @id2 = @id2;
+
+            EXEC dbo.sp_Validate @type = 'branch_shipping', @id1 = @id1
+            EXEC dbo.sp_Validate @type = 'dish_shipping', @id1 = @id2
         END;
     
     IF @type = 'branch_shipping' AND NOT EXISTS (SELECT 1 FROM Branch WHERE id = @id1 AND canShip = 1)
         THROW 50000, 'ERR_CANT_SHIP', 1;
-
-    IF @type = 'employee' AND NOT EXISTS (SELECT 1 FROM Employee WHERE id = @id1 AND endAt IS NULL)
-        THROW 50000, 'ERR_NO_EMPLOYEE', 1;
 
     IF @type = 'region_has_branch' AND NOT EXISTS (SELECT 1 FROM Branch WHERE region = @id1)
         THROW 50000, 'ERR_REGION_HAS_BRANCH', 1;
 
     IF @type = 'region' AND NOT EXISTS (SELECT 1 FROM Region WHERE id = @id1)
         THROW 50000, 'ERR_NO_REGION', 1;
-
-    IF @type = 'department' AND NOT EXISTS (SELECT 1 FROM Department WHERE id = @id1)
-        THROW 50000, 'ERR_NO_DEPARTMENT', 1;
 
     -- * Relate to customer
     IF @type = 'customer' AND NOT EXISTS (SELECT 1 FROM Customer WHERE id = @id1)
@@ -64,15 +71,7 @@ BEGIN
     
     IF @type = 'no_review' AND EXISTS (SELECT 1 FROM Review WHERE invoice = @id1)
         THROW 50000, 'ERR_REVIEWED', 1;
-    
-    IF @type = 'table_empty' AND EXISTS (SELECT 1 FROM BranchTable WHERE branch = @id1 AND tbl = @id2 AND invoice IS NOT NULL)
-        THROW 50000, 'ERR_TABLE_NOT_EMPTY', 1;
 
-    IF @type = 'table_invoice' AND NOT EXISTS (SELECT 1 FROM BranchTable WHERE branch = @id1 AND tbl = @id2 AND invoice = @id3)
-        THROW 50000, 'ERR_TABLE_INVOICE_MISMATCH', 1;
-
-    IF @type = 'dish_invoice' AND NOT EXISTS (SELECT 1 FROM InvoiceDetail WHERE invoice = @id1 AND dish = @id2)
-        THROW 50000, 'ERR_DISH_INVOICE', 1;
 
     -- * Relate to menu
     IF @type = 'dish' AND NOT EXISTS (SELECT 1 FROM Dish WHERE id = @id1 AND isDeleted = 0)

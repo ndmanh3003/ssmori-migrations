@@ -13,9 +13,9 @@ BEGIN
     EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'paid'
     EXEC dbo.sp_Validate @type = 'no_review', @id1 = @invoiceId
 
-    -- Get branch and employee
-    DECLARE @branchId INT, @employeeId INT
-    SELECT @branchId = branch, @employeeId = employee FROM Invoice WHERE id = @invoiceId
+    -- Get branch
+    DECLARE @branchId INT
+    SELECT @branchId = branch FROM Invoice WHERE id = @invoiceId
 
     -- Create review
     INSERT INTO Review (invoice, service, quality, price, location, comment)
