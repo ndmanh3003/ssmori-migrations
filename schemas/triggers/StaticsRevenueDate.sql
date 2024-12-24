@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Tự động cập nhật thống kê doanh thu theo tháng
 CREATE OR ALTER TRIGGER trg_StaticsRevenueDate_UpdateStaticsRevenueMonth
 ON StaticsRevenueDate
 AFTER INSERT, UPDATE

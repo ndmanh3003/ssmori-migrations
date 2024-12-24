@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Xóa món ăn liên quan
 CREATE OR ALTER PROCEDURE sp_DeleteRelateToDish
     @dishId  INT
 AS
@@ -21,25 +20,22 @@ END
 GO
 
 
--- TODO: Thêm món ăn vào thực thể
 CREATE OR ALTER PROCEDURE sp_AddDishToEntity
-    @entityType NVARCHAR(50), -- Loại entity ('category', 'combo', 'region', 'branch')
-    @entityId INT,            -- ID của entity
-    @dishId INT               -- ID của dish
+    @entityType NVARCHAR(50),
+    @entityId INT, 
+    @dishId INT 
 AS
 BEGIN
-    -- Validate entity và dish
     EXEC dbo.sp_Validate @type = @entityType, @id1 = @entityId;
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
 
-    -- Thêm validate bổ sung cho combo
     IF @entityType = 'combo'
     BEGIN
         EXEC dbo.sp_Validate @type = 'dish_is_combo', @id1 = @entityId;
         EXEC dbo.sp_Validate @type = 'dish_no_combo', @id1 = @dishId;
     END
 
-    -- Xây dựng tên bảng dựa trên entityType
+    -- Map entity type to table name
     DECLARE @tableName NVARCHAR(50) = 
         CASE @entityType
             WHEN 'category' THEN 'CategoryDish'
@@ -48,7 +44,7 @@ BEGIN
             WHEN 'branch' THEN 'BranchDish'
         END;
 
-    -- Xây dựng SQL động
+    -- Build dynamic SQL
     DECLARE @sql NVARCHAR(MAX);
     SET @sql = N'
         IF NOT EXISTS (
@@ -62,7 +58,7 @@ BEGIN
         END
     ';
 
-    -- Thực thi SQL động
+    -- Execute dynamic SQL
     EXEC sp_executesql @sql, 
         N'@entityId INT, @dishId INT', 
         @entityId = @entityId, 
@@ -70,25 +66,22 @@ BEGIN
 END
 GO
 
--- TODO: Xoá món ăn khỏi thực thể
 CREATE OR ALTER PROCEDURE sp_DeleteDishFromEntity
-    @entityType NVARCHAR(50), -- Loại entity ('category', 'combo', 'region', 'branch')
-    @entityId INT,            -- ID của entity
-    @dishId INT               -- ID của dish
+    @entityType NVARCHAR(50),
+    @entityId INT,
+    @dishId INT
 AS
 BEGIN
-    -- Validate entity và dish
     EXEC dbo.sp_Validate @type = @entityType, @id1 = @entityId;
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
 
-    -- Validate bổ sung cho combo (nếu cần)
     IF @entityType = 'combo'
     BEGIN
         EXEC dbo.sp_Validate @type = 'dish_is_combo', @id1 = @entityId;
         EXEC dbo.sp_Validate @type = 'dish_no_combo', @id1 = @dishId;
     END
 
-    -- Xây dựng tên bảng dựa trên entityType
+    -- Map entity type to table name
     DECLARE @tableName NVARCHAR(50) = 
         CASE @entityType
             WHEN 'category' THEN 'CategoryDish'
@@ -97,14 +90,14 @@ BEGIN
             WHEN 'branch' THEN 'BranchDish'
         END;
 
-    -- Xây dựng SQL động
+    -- Build dynamic SQL
     DECLARE @sql NVARCHAR(MAX);
     SET @sql = N'
         DELETE FROM ' + QUOTENAME(@tableName) + N'
         WHERE ' + QUOTENAME(@entityType) + N' = @entityId AND dish = @dishId;
     ';
 
-    -- Thực thi SQL động
+    -- Execute dynamic SQL
     EXEC sp_executesql @sql, 
         N'@entityId INT, @dishId INT', 
         @entityId = @entityId, 

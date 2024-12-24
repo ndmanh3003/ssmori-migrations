@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Tạo hệ thống
 CREATE OR ALTER PROC sp_CreateSystemConstants  
     @costPerKm DECIMAL(10, 2),
     @freeDistance INT,
@@ -31,7 +30,6 @@ BEGIN
 END
 GO
 
--- TODO: Cập nhật hệ thống
 CREATE OR ALTER PROC sp_UpdateSystemConstants  
     @costPerKm DECIMAL(10, 2) = NULL,
     @freeDistance INT = NULL,

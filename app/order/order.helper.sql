@@ -42,7 +42,7 @@ BEGIN
     -- Update point
     SET @currentPoint = @currentPoint + @point
 
-    -- Kiểm tra nâng hạng
+    -- Upgrade type
     IF @currentType = 'M'
         IF @currentPoint >= 100 -- Condition to upgrade to Silver
         BEGIN

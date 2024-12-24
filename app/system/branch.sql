@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Thêm chi nhánh mới
 CREATE OR ALTER PROC sp_CreateBranch 
     @name NVARCHAR(100),
     @address NVARCHAR(255),
@@ -19,13 +18,12 @@ BEGIN
 	EXEC dbo.sp_ValidateUnique @type = 'branch_address', @unique = @address
 	EXEC dbo.sp_ValidateUnique @type = 'branch_phone', @unique = @phone
 
-    -- Tạo branch
+    -- Insert branch
     INSERT INTO Branch (name, address, openTime, closeTime, phone, hasMotoPark, hasCarPark, canShip, region)
     VALUES (@name, @address, @openTime, @closeTime, @phone, @hasMotoPark, @hasCarPark, @canShip, @regionId)
 END
 GO
 
--- TODO: Cập nhật thông tin chi nhánh
 CREATE OR ALTER PROC sp_UpdateBranch  
     @branchId INT,
     @name NVARCHAR(100) = NULL,
@@ -45,7 +43,7 @@ BEGIN
     IF @regionId IS NOT NULL
         EXEC dbo.sp_Validate @type = 'region', @id1 = @regionId
 
-    -- Cập nhật thông tin branch
+    -- Update branch
     UPDATE Branch
     SET name = COALESCE(@name, name),
         address = COALESCE(@address, address),
@@ -60,7 +58,6 @@ BEGIN
 END
 GO
 
--- TODO: Xóa chi nhánh
 CREATE OR ALTER PROC sp_DeleteBranch  
     @branchId INT
 AS
@@ -69,7 +66,7 @@ BEGIN
 
     DELETE FROM BranchDish WHERE branch = @branchId
 
-    -- Cập nhật isDeleted để xoá branch
+    -- Delete branch
     UPDATE Branch
 	SET isDeleted = 1
 	WHERE id = @branchId

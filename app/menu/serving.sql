@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Thêm/xóa món ăn trong khu vực
 CREATE OR ALTER PROCEDURE sp_ManageRegionDishes
     @regionId INT,
     @dishId INT,
@@ -15,7 +14,6 @@ BEGIN
 END
 GO
 
--- TODO: Thêm/xóa món ăn trong chi nhánh
 CREATE OR ALTER PROCEDURE sp_ManageBranchDishes
     @branchId INT,
     @dishId INT,

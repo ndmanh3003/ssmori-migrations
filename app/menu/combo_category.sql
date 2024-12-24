@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Thêm/xóa món ăn trong danh mục
 CREATE OR ALTER PROCEDURE sp_ManageCategoryDishes
     @categoryId INT,
     @dishId INT,
@@ -15,7 +14,6 @@ BEGIN
 END
 GO
 
--- TODO: Thêm/xóa món ăn trong combo
 CREATE OR ALTER PROCEDURE sp_ManageComboDishes
     @comboId INT,
     @dishId INT,

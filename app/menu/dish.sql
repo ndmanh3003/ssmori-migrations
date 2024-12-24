@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Thêm món ăn
 CREATE OR ALTER PROCEDURE sp_CreateDish
     @isCombo BIT = 0,          
     @nameVN NVARCHAR(100),     
@@ -14,13 +13,12 @@ BEGIN
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameVN', @unique = @nameVN;
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameEN', @unique = @nameEN;
 
-    -- Thêm món ăn mới vào bảng Dish
+    -- Add new dish
     INSERT INTO Dish (isCombo, nameVN, nameEN, price, canShip, img)
     VALUES (@isCombo, @nameVN, @nameEN, @price, @canShip, @img);
 END
 GO
 
--- TODO: Cập nhật thông tin món ăn
 CREATE OR ALTER PROCEDURE sp_UpdateDish
     @dishId INT,           
     @nameVN NVARCHAR(100) = NULL,   
@@ -34,7 +32,7 @@ BEGIN
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameVN', @unique = @nameVN;
     EXEC dbo.sp_ValidateUnique @type = 'dish_nameEN', @unique = @nameEN;
 
-    -- Cập nhật thông tin món ăn
+    -- Update dish
     UPDATE Dish
     SET 
         nameVN = COALESCE(@nameVN, nameVN),
@@ -46,17 +44,16 @@ BEGIN
 END
 GO
 
--- TODO: Xóa món ăn
 CREATE OR ALTER PROCEDURE sp_DeleteDish
     @dishId INT
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'dish', @id1 = @dishId;
 
-    -- Xóa các table liên quan
+    -- Delete related data
     EXEC dbo.sp_DeleteRelateToDish @dishId = @dishId;
 
-    -- Đánh dấu đã xóa món ăn
+    -- Delete dish
     UPDATE Dish
     SET isDeleted = 1
     WHERE id = @dishId;

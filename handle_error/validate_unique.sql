@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Kiểm tra unique các trường trong các bảng
 CREATE OR ALTER PROCEDURE sp_ValidateUnique
     @type NVARCHAR(50),
     @unique NVARCHAR(100)

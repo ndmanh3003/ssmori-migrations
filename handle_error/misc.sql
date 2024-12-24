@@ -1,7 +1,6 @@
 USE SSMORI
 GO
 
--- TODO: Kiểm tra thời gian đặt phải là thời gian trong tương lai
 CREATE OR ALTER PROCEDURE sp_CheckFutureTime
     @time DATETIME
 AS
@@ -11,7 +10,6 @@ BEGIN
 END;
 GO
 
--- TODO: Kiểm tra trạng thái của hóa đơn
 CREATE OR ALTER PROCEDURE sp_CheckInvoiceStatus
     @id INT,
     @status NVARCHAR(15),
