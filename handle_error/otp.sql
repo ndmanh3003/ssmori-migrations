@@ -8,11 +8,13 @@ AS
 BEGIN
     IF @type = 'C' AND NOT EXISTS (SELECT 1 FROM Customer WHERE phone = @phone)
         THROW 50000, 'ERR_INVALID_PHONE', 1;
+    ELSE IF @type = 'U' AND EXISTS (SELECT 1 FROM Customer WHERE phone = @phone)
+        THROW 50000, 'ERR_EXISTS_PHONE', 1;
     ELSE IF @type = 'S' AND NOT EXISTS (SELECT 1 FROM Const WHERE phone = @phone)
         THROW 50000, 'ERR_INVALID_PHONE', 1;
     ELSE IF @type = 'B' AND NOT EXISTS (SELECT 1 FROM Branch WHERE phone = @phone)
         THROW 50000, 'ERR_INVALID_PHONE', 1;
-    ELSE IF @type NOT IN ('C', 'S', 'B')
+    ELSE IF @type NOT IN ('C', 'S', 'B', 'U')
         THROW 50000, 'ERR_INVALID_TYPE', 1;
 END
 GO
