@@ -52,7 +52,6 @@ GO
 
 
 CREATE OR ALTER PROC sp_Register
-    @phone VARCHAR(15),
     @otp NVARCHAR(6),
     @name NVARCHAR(100),
     @phone VARCHAR(15),
