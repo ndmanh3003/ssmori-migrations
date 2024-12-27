@@ -8,7 +8,7 @@ CREATE OR ALTER PROC sp_SendOtp
 AS
 BEGIN
     EXEC dbo.sp_CheckPhone @phone = @phone, @type = @type
-    EXEC dbo.sp_CanSendOtp @phone = @phone
+    EXEC dbo.sp_CanSendOtp @phone = @phone, @type = @type
 
     SET @otp = RIGHT('000000' + CAST(ABS(CHECKSUM(NEWID())) % 1000000 AS NVARCHAR(6)), 6);
     
