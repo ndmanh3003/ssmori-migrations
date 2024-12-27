@@ -190,11 +190,13 @@ CREATE TABLE Const (
 
 CREATE TABLE OTP (
     -- 6 digits OTP, 3 attempts, has 5 minutes to use, resend after 30 seconds
-    phone			    VARCHAR(15) NOT NULL PRIMARY KEY,
+    phone			    VARCHAR(15) NOT NULL,
     otp			        VARBINARY(32) NOT NULL,
     expireAt		    DATETIME NOT NULL,
     attempt			    TINYINT DEFAULT 0 NOT NULL CHECK (attempt >= 0 AND attempt <= 3),
     type                CHAR(1) NOT NULL CHECK (type IN ('C', 'S', 'B', 'U')) -- C: Customer, S: System, B: Branch, U: Undefined
+
+    PRIMARY KEY (phone, type)
 )
 
 CREATE TABLE StaticsRevenueDate (

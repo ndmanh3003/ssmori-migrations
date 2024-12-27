@@ -20,10 +20,11 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE sp_CanSendOtp
-    @phone VARCHAR(15)
+    @phone VARCHAR(15),
+    @type CHAR(1)
 AS
 BEGIN
-    IF EXISTS (SELECT 1 FROM Otp WHERE phone = @phone)
+    IF EXISTS (SELECT 1 FROM Otp WHERE phone = @phone AND type = @type)
     BEGIN
         DECLARE @issueAt DATETIME
         SELECT @issueAt = DATEADD(MINUTE, -5, expireAt) FROM Otp WHERE phone = @phone
