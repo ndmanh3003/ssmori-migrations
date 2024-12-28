@@ -7,13 +7,12 @@ CREATE OR ALTER PROCEDURE sp_CreateOnlineOrder
     @orderAt DATETIME = NULL,
     @distanceKm INT,
     @branchId INT,
-    @customerId INT = NULL,
+    @customerId INT,
     @invoiceId INT OUTPUT
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'branch_shipping', @id1 = @branchId
-    IF @customerId IS NOT NULL
-        EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
+    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
     -- Calculate ship cost
     DECLARE @shipCost DECIMAL(10,2) 
@@ -36,13 +35,12 @@ CREATE OR ALTER PROCEDURE sp_CreateReserveOrder
 	@guestCount INT,
     @bookingAt DATETIME,
     @phone VARCHAR(15),
-    @customerId INT = NULL
+    @customerId INT
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
     EXEC dbo.sp_CheckFutureTime @time = @bookingAt
-    IF @customerId IS NOT NULL
-        EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
+    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
     -- Create reserve order
     INSERT INTO Invoice (status, orderAt, customer, branch, type)
@@ -75,7 +73,8 @@ BEGIN
     END
 
     EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
-    EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
+    IF @customerId IS NOT NULL
+        EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
     -- Serve order
     INSERT INTO Invoice (status, orderAt, customer, branch, type)
