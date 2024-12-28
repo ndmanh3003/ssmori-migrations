@@ -57,7 +57,6 @@ GO
 CREATE OR ALTER PROCEDURE sp_CreateOffOrder
     @invoiceId INT = NULL,
     @orderAt DATETIME = NULL,
-    @status NVARCHAR(15) = NULL,
     @customerId INT = NULL,
     @branchId INT = NULL
 AS

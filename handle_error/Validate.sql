@@ -72,7 +72,6 @@ BEGIN
     IF @type = 'no_review' AND EXISTS (SELECT 1 FROM Review WHERE invoice = @id1)
         THROW 50000, 'ERR_REVIEWED', 1;
 
-
     -- * Relate to menu
     IF @type = 'dish' AND NOT EXISTS (SELECT 1 FROM Dish WHERE id = @id1 AND isDeleted = 0)
         THROW 50000, 'ERR_NO_DISH', 1;
