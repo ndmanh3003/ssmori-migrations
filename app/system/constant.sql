@@ -1,39 +1,10 @@
 USE SSMORI
 GO
 
-CREATE OR ALTER PROC sp_CreateSystemConstants  
-    @costPerKm DECIMAL(10, 2),
-    @freeDistance INT,
-    @phone NVARCHAR(15),
-	@shipMemberDiscount INT,
-	@shipSilverDiscount INT,
-	@shipGoldDiscount INT,
-	@dishMemberDiscount INT,
-	@dishSilverDiscount INT,
-	@dishGoldDiscount INT
-AS
-BEGIN
-	DELETE FROM Const
-    
-    INSERT INTO Const VALUES(
-		1,
-		@costPerKm,
-		@freeDistance,
-		@phone,
-		@shipMemberDiscount,
-		@shipSilverDiscount,
-		@shipGoldDiscount,
-		@dishMemberDiscount,
-		@dishSilverDiscount,
-		@dishGoldDiscount
-	)
-END
-GO
-
 CREATE OR ALTER PROC sp_UpdateSystemConstants  
-    @costPerKm DECIMAL(10, 2) = NULL,
-    @freeDistance INT = NULL,
-    @phone NVARCHAR(15) = NULL,
+	@costPerKm DECIMAL(10, 2) = NULL,
+	@freeDistance INT = NULL,
+	@phone NVARCHAR(15) = NULL,
 	@shipMemberDiscount INT = NULL,
 	@shipSilverDiscount INT = NULL,
 	@shipGoldDiscount INT = NULL,
@@ -48,7 +19,7 @@ BEGIN
         phone = COALESCE(@phone, phone),
         shipMemberDiscount = COALESCE(@shipMemberDiscount, shipMemberDiscount),
         shipSilverDiscount = COALESCE(@shipSilverDiscount, shipSilverDiscount),
-    	shipGoldDiscount = COALESCE(@shipGoldDiscount, shipGoldDiscount),
+    		shipGoldDiscount = COALESCE(@shipGoldDiscount, shipGoldDiscount),
         dishMemberDiscount = COALESCE(@dishMemberDiscount, dishMemberDiscount),
         dishSilverDiscount = COALESCE(@dishSilverDiscount, dishSilverDiscount),
         dishGoldDiscount = COALESCE(@dishGoldDiscount, dishGoldDiscount)
