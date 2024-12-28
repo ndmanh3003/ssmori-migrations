@@ -12,6 +12,7 @@ CREATE TABLE Branch (
 
     name				NVARCHAR(100) UNIQUE NOT NULL,
     address				NVARCHAR(255) UNIQUE NOT NULL,
+    img					NVARCHAR(255),
     openTime			TIME NOT NULL,
     closeTime			TIME NOT NULL,
     phone				VARCHAR(15) UNIQUE NOT NULL,

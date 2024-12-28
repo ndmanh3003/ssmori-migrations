@@ -4,6 +4,7 @@ GO
 CREATE OR ALTER PROC sp_CreateBranch 
     @name NVARCHAR(100),
     @address NVARCHAR(255),
+    @img NVARCHAR(255) = NULL,
     @openTime TIME,
     @closeTime TIME,
     @phone NVARCHAR(20),
@@ -19,8 +20,8 @@ BEGIN
 	EXEC dbo.sp_ValidateUnique @type = 'branch_phone', @unique = @phone
 
     -- Insert branch
-    INSERT INTO Branch (name, address, openTime, closeTime, phone, hasMotoPark, hasCarPark, canShip, region)
-    VALUES (@name, @address, @openTime, @closeTime, @phone, @hasMotoPark, @hasCarPark, @canShip, @regionId)
+    INSERT INTO Branch (name, address, img, openTime, closeTime, phone, hasMotoPark, hasCarPark, canShip, region)
+    VALUES (@name, @address, @img, @openTime, @closeTime, @phone, @hasMotoPark, @hasCarPark, @canShip, @regionId)
 END
 GO
 
@@ -28,6 +29,7 @@ CREATE OR ALTER PROC sp_UpdateBranch
     @branchId INT,
     @name NVARCHAR(100) = NULL,
     @address NVARCHAR(255) = NULL,
+    @img NVARCHAR(255) = NULL,
     @openTime TIME = NULL,
     @closeTime TIME = NULL,
     @phone NVARCHAR(20) = NULL,
@@ -47,6 +49,7 @@ BEGIN
     UPDATE Branch
     SET name = COALESCE(@name, name),
         address = COALESCE(@address, address),
+        img = COALESCE(@img, img),
         openTime = COALESCE(@openTime, openTime),
         closeTime = COALESCE(@closeTime, closeTime),
         phone = COALESCE(@phone, phone),
