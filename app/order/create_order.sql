@@ -58,7 +58,8 @@ CREATE OR ALTER PROCEDURE sp_CreateOffOrder
     @invoiceId INT = NULL,
     @orderAt DATETIME = NULL,
     @customerId INT = NULL,
-    @branchId INT = NULL
+    @branchId INT = NULL,
+    @outInvoiceId INT OUTPUT
 AS
 BEGIN
     IF @invoiceId IS NOT NULL
@@ -68,6 +69,8 @@ BEGIN
 
         -- Update invoice status
         UPDATE Invoice SET status = 'draft' WHERE id = @invoiceId
+
+        SET @outInvoiceId = @invoiceId
         RETURN
     END
 
@@ -78,5 +81,7 @@ BEGIN
     -- Serve order
     INSERT INTO Invoice (status, orderAt, customer, branch, type)
     VALUES ('draft', COALESCE(@orderAt, GETDATE()), @customerId, @branchId, 'W')
+
+    SET @outInvoiceId = SCOPE_IDENTITY()
 END
 GO
