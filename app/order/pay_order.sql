@@ -6,7 +6,7 @@ CREATE OR ALTER PROCEDURE sp_PayOrder
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'invoice', @id1 = @invoiceId
-    EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'issued'
+    EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'submitted'
 
     -- Get invoice total payment, customerId and branch
     DECLARE @totalPayment DECIMAL(10,2), @branchId INT, @customerId INT

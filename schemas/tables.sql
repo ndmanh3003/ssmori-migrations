@@ -111,7 +111,7 @@ CREATE TABLE RegionDish (
 CREATE TABLE Invoice (
     id					INT IDENTITY PRIMARY KEY,
 
-    status              NVARCHAR(15) DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'canceled', 'issued', 'paid')),
+    status              NVARCHAR(15) DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'canceled', 'paid')),
     orderAt				DATETIME NOT NULL CHECK (orderAt <= GETDATE()),
 
     total				DECIMAL(10, 2) DEFAULT 0 NOT NULL CHECK (total >= 0),
@@ -146,7 +146,6 @@ CREATE TABLE InvoiceReserve (
 
     guestCount			INT NOT NULL CHECK (guestCount > 0),
     bookingAt			DATETIME NOT NULL CHECK (bookingAt > GETDATE()),
-    phone				NVARCHAR(15) NOT NULL,
 
     CONSTRAINT FK_InvoiceReserve_Invoice FOREIGN KEY (invoice) REFERENCES Invoice(id)
 )

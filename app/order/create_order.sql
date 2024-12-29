@@ -34,7 +34,6 @@ CREATE OR ALTER PROCEDURE sp_CreateReserveOrder
     @orderAt DATETIME = NULL,
 	@guestCount INT,
     @bookingAt DATETIME,
-    @phone VARCHAR(15),
     @customerId INT
 AS
 BEGIN
@@ -49,8 +48,8 @@ BEGIN
     DECLARE @invoiceId INT
     SET @invoiceId = SCOPE_IDENTITY()
 
-    INSERT INTO InvoiceReserve (invoice, guestCount, bookingAt, phone)
-    VALUES (@invoiceId, @guestCount, @bookingAt, @phone)
+    INSERT INTO InvoiceReserve (invoice, guestCount, bookingAt)
+    VALUES (@invoiceId, @guestCount, @bookingAt)
 END
 GO
 
