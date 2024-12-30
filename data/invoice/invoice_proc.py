@@ -21,13 +21,13 @@ def generate_sql_script(start_at="2024-12-1", end_at="2024-12-30"):
     current_date = start_date
 
     while current_date <= end_date:
-        for i in range(130):
-            if i < 60:  # Offline orders
+        for i in range(100):
+            if i < 50:  # Offline orders
                 branch_id = random.choice(branches)
                 order_at = current_date.strftime("%Y-%m-%d")  
                 sql_statements.append(create_offline_order(branch_id, dishes, order_at))
                 
-            elif i < 100:  # Online orders
+            elif i < 80:  # Online orders
                 branch_id = random.choice(online_branches)
                 customer_id = random.choice(customers)
                 phone = '111'  
@@ -71,7 +71,7 @@ def create_online_order(phone, address, distance_km, branch_id, customer_id, onl
 def create_reserve_order(branch_id, guest_count, booking_at, order_at, customer_id):
     sql = [
         "DECLARE @invoiceId INT;",
-        f"EXEC dbo.sp_CreateReserveOrder  @branchId = {branch_id}, @orderAt = '{order_at}', @guestCount = {guest_count}, @bookingAt = '{booking_at}', @customerId = {customer_id}, @invoiceId = @invoiceId OUTPUT;"
+        f"EXEC dbo.sp_CreateReserveOrder  @branchId = {branch_id}, @orderAt = '{order_at}', @guestCount = {guest_count}, @bookingAt = '{booking_at}', @customerId = {customer_id}, @invoiceId = @invoiceId OUTPUT;\n"
         "DECLARE @outInvoiceId INT;",
         f"EXEC dbo.sp_CreateOffOrder  @invoiceId = @invoiceId, @outInvoiceId = @outInvoiceId OUTPUT;"
     ]
@@ -90,7 +90,7 @@ def add_dish_details(invoice_id_var, dishes):
 
 script = generate_sql_script(start_at="2020-1-1", end_at="2020-1-28")
 
-with open("invoice_one_month.sql", "w", encoding="utf-8") as f:
+with open("invoice_proc.sql", "w", encoding="utf-8") as f:
     f.write(script + "\nGO")
 
 print("🎇🎇 SQL script generated successfully 🎇🎇")

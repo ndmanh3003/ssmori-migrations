@@ -1,35 +1,5 @@
 USE [SSMORI]
 GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (1, CAST(N'2020-01-01' AS Date), 206, CAST(816366.40 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (2, CAST(N'2020-01-01' AS Date), 121, CAST(318797.20 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (3, CAST(N'2020-01-01' AS Date), 135, CAST(400724.80 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (4, CAST(N'2020-01-01' AS Date), 221, CAST(939645.20 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (5, CAST(N'2020-01-01' AS Date), 195, CAST(691714.80 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (6, CAST(N'2020-01-01' AS Date), 196, CAST(746513.60 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (7, CAST(N'2020-01-01' AS Date), 211, CAST(835340.40 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (8, CAST(N'2020-01-01' AS Date), 212, CAST(863016.00 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (9, CAST(N'2020-01-01' AS Date), 144, CAST(457092.00 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (10, CAST(N'2020-01-01' AS Date), 193, CAST(685968.80 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (11, CAST(N'2020-01-01' AS Date), 226, CAST(926788.80 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (12, CAST(N'2020-01-01' AS Date), 194, CAST(680680.80 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (13, CAST(N'2020-01-01' AS Date), 210, CAST(792474.80 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (14, CAST(N'2020-01-01' AS Date), 134, CAST(331072.00 AS Decimal(10, 2)))
-GO
-INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (15, CAST(N'2020-01-01' AS Date), 202, CAST(754340.80 AS Decimal(10, 2)))
-GO
 SET IDENTITY_INSERT [dbo].[Invoice] ON 
 GO
 INSERT [dbo].[Invoice] ([id], [status], [orderAt], [total], [shipCost], [dishDiscount], [shipDiscount], [totalPayment], [customer], [branch], [type]) VALUES (1, N'paid', CAST(N'2020-01-01T00:00:00.000' AS DateTime), CAST(750.00 AS Decimal(10, 2)), CAST(0.00 AS Decimal(10, 2)), CAST(0.00 AS Decimal(10, 2)), CAST(0.00 AS Decimal(10, 2)), CAST(750.00 AS Decimal(10, 2)), NULL, 12, N'W')
@@ -20769,4 +20739,34 @@ GO
 INSERT [dbo].[StaticsRevenueDate] ([branch], [date], [totalInvoice], [totalValue]) VALUES (15, CAST(N'2020-01-27' AS Date), 10, CAST(6704.40 AS Decimal(10, 2)))
 GO
 INSERT [dbo].[StaticsRevenueDate] ([branch], [date], [totalInvoice], [totalValue]) VALUES (15, CAST(N'2020-01-28' AS Date), 3, CAST(2736.00 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (1, CAST(N'2020-01-01' AS Date), 206, CAST(816366.40 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (2, CAST(N'2020-01-01' AS Date), 121, CAST(318797.20 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (3, CAST(N'2020-01-01' AS Date), 135, CAST(400724.80 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (4, CAST(N'2020-01-01' AS Date), 221, CAST(939645.20 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (5, CAST(N'2020-01-01' AS Date), 195, CAST(691714.80 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (6, CAST(N'2020-01-01' AS Date), 196, CAST(746513.60 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (7, CAST(N'2020-01-01' AS Date), 211, CAST(835340.40 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (8, CAST(N'2020-01-01' AS Date), 212, CAST(863016.00 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (9, CAST(N'2020-01-01' AS Date), 144, CAST(457092.00 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (10, CAST(N'2020-01-01' AS Date), 193, CAST(685968.80 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (11, CAST(N'2020-01-01' AS Date), 226, CAST(926788.80 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (12, CAST(N'2020-01-01' AS Date), 194, CAST(680680.80 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (13, CAST(N'2020-01-01' AS Date), 210, CAST(792474.80 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (14, CAST(N'2020-01-01' AS Date), 134, CAST(331072.00 AS Decimal(10, 2)))
+GO
+INSERT [dbo].[StaticsRevenueMonth] ([branch], [date], [totalInvoice], [totalValue]) VALUES (15, CAST(N'2020-01-01' AS Date), 202, CAST(754340.80 AS Decimal(10, 2)))
 GO
