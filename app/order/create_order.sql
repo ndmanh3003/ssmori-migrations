@@ -34,7 +34,8 @@ CREATE OR ALTER PROCEDURE sp_CreateReserveOrder
     @orderAt DATETIME = NULL,
 	@guestCount INT,
     @bookingAt DATETIME,
-    @customerId INT
+    @customerId INT,
+    @invoiceId INT OUTPUT
 AS
 BEGIN
     EXEC dbo.sp_Validate @type = 'branch', @id1 = @branchId
@@ -45,7 +46,6 @@ BEGIN
     INSERT INTO Invoice (status, orderAt, customer, branch, type)
     VALUES ('submitted', COALESCE(@orderAt, GETDATE()), @customerId, @branchId, 'R')
 
-    DECLARE @invoiceId INT
     SET @invoiceId = SCOPE_IDENTITY()
 
     INSERT INTO InvoiceReserve (invoice, guestCount, bookingAt)

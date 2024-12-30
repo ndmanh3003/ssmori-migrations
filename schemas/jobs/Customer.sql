@@ -4,10 +4,10 @@ GO
 CREATE OR ALTER PROCEDURE sp_DownCustomersRank
 AS
 BEGIN
-    DECLARE @CustomerID INT,
-            @CustomerType CHAR(1),
-            @CustomerPoint INT,
-            @UpgradeAt DATE;
+    DECLARE @customerID INT,
+            @customerType CHAR(1),
+            @customerPoint INT,
+            @upgradeAt DATE;
 
     DECLARE CustomerCursor CURSOR FOR
         SELECT id, type, point, upgradeAt
@@ -21,21 +21,21 @@ BEGIN
 
     OPEN CustomerCursor;
 
-    FETCH NEXT FROM CustomerCursor INTO @CustomerID, @CustomerType, @CustomerPoint, @UpgradeAt;
+    FETCH NEXT FROM CustomerCursor INTO @customerID, @customerType, @customerPoint, @upgradeAt;
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
         UPDATE Customer
         SET 
             type = CASE
-                WHEN @CustomerType = 'S' THEN 'M'
-                WHEN @CustomerType = 'G' THEN 'S'
+                WHEN @customerType = 'S' THEN 'M'
+                WHEN @customerType = 'G' THEN 'S'
             END,
             point = 0,
             upgradeAt = GETDATE()
-        WHERE id = @CustomerID;
+        WHERE id = @customerID;
 
-        FETCH NEXT FROM CustomerCursor INTO @CustomerID, @CustomerType, @CustomerPoint, @UpgradeAt;
+        FETCH NEXT FROM CustomerCursor INTO @customerID, @customerType, @customerPoint, @upgradeAt;
     END
 
     CLOSE CustomerCursor;

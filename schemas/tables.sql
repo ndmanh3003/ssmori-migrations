@@ -216,7 +216,7 @@ CREATE TABLE StaticsRevenueMonth (
     date                DATE NOT NULL, 
 
     totalInvoice        INT NOT NULL CHECK (totalInvoice >= 0),
-    totalValue          DECIMAL(10, 2) NOT NULL CHECK (totalValue >= 0),
+    totalValue          DECIMAL(12, 2) NOT NULL CHECK (totalValue >= 0),
 
     PRIMARY KEY (branch, date),
     CONSTRAINT FK_StaticsRevenueMonth_Branch FOREIGN KEY (branch) REFERENCES Branch(id)

@@ -24,7 +24,8 @@ GO
 
 CREATE OR ALTER PROCEDURE sp_UpdateCustomerPoint
     @customerId INT, 
-    @totalPayment DECIMAL(10,2)
+    @totalPayment DECIMAL(10,2),
+    @orderAt DATETIME
 AS
 BEGIN
     DECLARE @currentPoint INT
@@ -37,7 +38,7 @@ BEGIN
 
     -- Get point from total payment
     DECLARE @point INT
-    SELECT @point = CAST(@totalPayment/100000 AS INT)
+    SELECT @point = CAST(@totalPayment/100 AS INT)
 
     -- Update point
     SET @currentPoint = @currentPoint + @point
@@ -47,7 +48,7 @@ BEGIN
         IF @currentPoint >= 100 -- Condition to upgrade to Silver
         BEGIN
             SET @currentType = 'S'
-            SET @upgradeAt = GETDATE()
+            SET @upgradeAt = @orderAt
             SET @currentPoint = @currentPoint - 100
         END
 
@@ -55,7 +56,7 @@ BEGIN
         IF @currentPoint >= 100 -- Condition to upgrade to Gold
         BEGIN
             SET @currentType = 'G'
-            SET @upgradeAt = GETDATE()
+            SET @upgradeAt = @orderAt
             SET @currentPoint = @currentPoint - 100
         END
 
