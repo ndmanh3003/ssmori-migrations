@@ -29,7 +29,7 @@ RETURN
     LEFT JOIN CategoryDish cd ON d.id = cd.dish
     LEFT JOIN Category c ON cd.category = c.id
 
-    WHERE b.id = @branchId
+    WHERE @branchId IS NULL OR b.id = @branchId
 );
 GO
 
@@ -39,16 +39,17 @@ RETURNS TABLE
 AS
 RETURN
 (
-    SELECT i.*, id.dish, id.quantity, id.sum, ir.guestCount, ir.bookingAt, io.phone, io.address, io.distanceKm, b.name + ' - ' + b.address AS 'branchInfo'
+    SELECT i.*, id.dish, id.quantity, id.sum, d.nameEn, d.nameVn, ir.guestCount, ir.bookingAt, io.phone, io.address, io.distanceKm, b.name + ' - ' + b.address branchInfo
 
     FROM Invoice i
     LEFT JOIN InvoiceDetail id ON i.id = id.invoice
     LEFT JOIN Branch b ON i.branch = b.id
     LEFT JOIN InvoiceReserve ir ON i.id = ir.invoice
     LEFT JOIN InvoiceOnline io ON i.id = io.invoice
+	JOIN Dish d ON d.id = id.dish
 
     WHERE i.id = @invoiceId
-    AND (i.customer IS NULL OR i.customer = @customerId)
+    AND (@customerId IS NULL OR i.customer = @customerId)
 );
 GO
 
@@ -56,32 +57,30 @@ GO
 CREATE OR ALTER FUNCTION fn_viewInvoiceList(
     @status NVARCHAR(15), 
     @from DATETIME, 
-    @to DATETIME, 
-    @in NVARCHAR(15), 
     @customerId INT, 
     @branchId INT, 
     @type CHAR(1),
     @page INT,
-    @pageSize INT
+    @limit INT
 )
 RETURNS TABLE
 AS
 RETURN
 (
-    SELECT i.*, b.name + ' - ' + b.address AS 'branchInfo'
+    SELECT i.*, b.name + ' - ' + b.address AS branchInfo
 
     FROM Invoice i
     LEFT JOIN Branch b ON i.branch = b.id
 
     WHERE (@status IS NULL OR i.status = @status)
     AND (@from IS NULL OR CAST(i.orderAt AS DATE) >= @from)
-    AND (@to IS NULL OR CAST(i.orderAt AS DATE) <= @to)
-    AND (@in IS NULL OR CAST(i.orderAt AS DATE) = @in)
     AND (@customerId IS NULL OR i.customer = @customerId)
     AND (@branchId IS NULL OR i.branch = @branchId)
     AND (@type IS NULL OR i.type = @type)
+	AND i.status != 'draft'
 
     ORDER BY i.orderAt DESC
-    OFFSET (@page - 1) * @pageSize ROWS 
-    FETCH NEXT @pageSize ROWS ONLY
+    OFFSET (@page - 1) * @limit ROWS 
+    FETCH NEXT @limit ROWS ONLY
 );
+GO
