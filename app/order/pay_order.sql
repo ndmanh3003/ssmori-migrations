@@ -28,18 +28,25 @@ BEGIN
     MERGE StaticsDishMonth AS target
     USING (
         SELECT 
-            @branchId as branch, 
-            DATEFROMPARTS(YEAR(@orderAt), MONTH(@orderAt), 1) as date,
-            dish, 
-            SUM(quantity) as totalQuantity
-        FROM InvoiceDetail
-        WHERE invoice = @invoiceId
-        GROUP BY dish
+            branch,
+            date,
+            dish,
+            SUM(quantity) AS totalQuantity
+        FROM (
+            SELECT 
+                @branchId AS branch,
+                DATEFROMPARTS(YEAR(@orderAt), MONTH(@orderAt), 1) AS date,
+                dish,
+                quantity
+            FROM InvoiceDetail
+            WHERE invoice = @invoiceId
+        ) AS subquery
+        GROUP BY branch, date, dish
     ) AS source
     ON target.branch = source.branch AND target.date = source.date AND target.dish = source.dish
     WHEN MATCHED THEN
         UPDATE SET 
-            totalDish = totalQuantity + source.totalQuantity
+            totalDish = target.totalDish + source.totalQuantity
     WHEN NOT MATCHED THEN
         INSERT (branch, date, dish, totalDish)
         VALUES (source.branch, source.date, source.dish, source.totalQuantity);
