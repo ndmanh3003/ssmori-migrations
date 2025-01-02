@@ -34,7 +34,7 @@ def generate_invoices(start_month: str, end_month: str):
             while current_date.year == current_year and current_date <= end_date:
                 month_str = current_date.strftime("%Y-%m")
 
-                sample_file = f"sample/{random.randint(1, 4)}.sql"
+                sample_file = f"data/invoice/sample/{random.randint(1, 4)}.sql"
 
                 with open(sample_file, "r", encoding="utf-8") as infile:
                     content = infile.read()
