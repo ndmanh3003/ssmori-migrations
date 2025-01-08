@@ -1,7 +1,7 @@
 USE SSMORI
 GO
 
-CREATE OR ALTER PROCEDURE sp_CreateOnlineOrder
+CREATE OR ALTER PROCEDURE sp_CreateOnlineInvoice
     @phone VARCHAR(15),
     @address NVARCHAR(255),
     @orderAt DATETIME = NULL,
@@ -14,7 +14,6 @@ BEGIN
     EXEC dbo.sp_Validate @type = 'branch_shipping', @id1 = @branchId
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
-    -- Calculate ship cost
     DECLARE @shipCost DECIMAL(10,2) 
     SET @shipCost = dbo.fn_CalculateShipCost(@distanceKm)
 
@@ -23,13 +22,12 @@ BEGIN
 
     SET @invoiceId = SCOPE_IDENTITY()
 
-    -- Create online order
     INSERT INTO InvoiceOnline (invoice, phone, address, distanceKm)
     VALUES (@invoiceId, @phone, @address, @distanceKm)
 END
 GO
 
-CREATE OR ALTER PROCEDURE sp_CreateReserveOrder
+CREATE OR ALTER PROCEDURE sp_CreateReserveInvoice
     @branchId INT,
     @orderAt DATETIME = NULL,
 	@guestCount INT,
@@ -42,7 +40,6 @@ BEGIN
     EXEC dbo.sp_CheckFutureTime @time = @bookingAt
     EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
-    -- Create reserve order
     INSERT INTO Invoice (status, orderAt, customer, branch, type)
     VALUES ('submitted', COALESCE(@orderAt, GETDATE()), @customerId, @branchId, 'R')
 
@@ -53,7 +50,7 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE sp_CreateOffOrder
+CREATE OR ALTER PROCEDURE sp_CreateOffInvoice
     @invoiceId INT = NULL,
     @orderAt DATETIME = NULL,
     @customerId INT = NULL,
@@ -66,7 +63,6 @@ BEGIN
         EXEC dbo.sp_Validate @type = 'invoice_reserve', @id1 = @invoiceId
         EXEC dbo.sp_CheckInvoiceStatus @id = @invoiceId, @status = 'submitted'
 
-        -- Update invoice status
         UPDATE Invoice SET status = 'draft' WHERE id = @invoiceId
 
         SET @outInvoiceId = @invoiceId
@@ -77,7 +73,6 @@ BEGIN
     IF @customerId IS NOT NULL
         EXEC dbo.sp_Validate @type = 'customer', @id1 = @customerId
 
-    -- Serve order
     INSERT INTO Invoice (status, orderAt, customer, branch, type)
     VALUES ('draft', COALESCE(@orderAt, GETDATE()), @customerId, @branchId, 'W')
 

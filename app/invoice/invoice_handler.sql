@@ -1,7 +1,7 @@
 USE SSMORI
 GO
 
-CREATE OR ALTER PROCEDURE sp_SubmitOrder
+CREATE OR ALTER PROCEDURE sp_SubmitInvoice
     @invoiceId INT
 AS
 BEGIN
@@ -14,7 +14,7 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE sp_CancelOrder
+CREATE OR ALTER PROCEDURE sp_CancelInvoice
     @invoiceId INT
 AS
 BEGIN

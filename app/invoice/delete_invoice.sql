@@ -1,7 +1,7 @@
 USE SSMORI
 GO
 
-CREATE OR ALTER PROCEDURE sp_DeleteOrder
+CREATE OR ALTER PROCEDURE sp_DeleteInvoice
     @invoiceId INT,
     @customerId INT = NULL
 AS

@@ -109,7 +109,7 @@ CREATE TABLE RegionDish (
 
 
 CREATE TABLE Invoice (
-    id					INT IDENTITY PRIMARY KEY,
+    id					INT IDENTITY PRIMARY KEY NONCLUSTERED,
 
     status              NVARCHAR(15) DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'canceled', 'paid')),
     orderAt				DATETIME NOT NULL CHECK (orderAt <= GETDATE()),
