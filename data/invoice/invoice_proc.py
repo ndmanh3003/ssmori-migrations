@@ -22,62 +22,62 @@ def generate_sql_script(start_at="2024-12-1", end_at="2024-12-30"):
 
     while current_date <= end_date:
         for i in range(100):
-            if i < 50:  # Offline orders
+            if i < 50:  # Offline invoices
                 branch_id = random.choice(branches)
                 order_at = current_date.strftime("%Y-%m-%d")  
-                sql_statements.append(create_offline_order(branch_id, dishes, order_at))
+                sql_statements.append(create_offline_invoice(branch_id, dishes, order_at))
                 
-            elif i < 80:  # Online orders
+            elif i < 80:  # Online invoices
                 branch_id = random.choice(online_branches)
                 customer_id = random.choice(customers)
                 phone = '111'  
                 address = '123 Main St'
                 distance_km = random.randint(1, 10)
                 order_at = current_date.strftime("%Y-%m-%d")  
-                sql_statements.append(create_online_order(phone, address, distance_km, branch_id, customer_id, online_dishes, order_at))
+                sql_statements.append(create_online_invoice(phone, address, distance_km, branch_id, customer_id, online_dishes, order_at))
                 
-            else:  # Reserve orders
+            else:  # Reserve invoices
                 branch_id = random.choice(branches)
                 customer_id = random.choice(customers)
                 guest_count = 5
                 booking_at = '2026-01-01'
                 order_at = current_date.strftime("%Y-%m-%d")
-                sql_statements.append(create_reserve_order(branch_id, guest_count, booking_at, order_at, customer_id)), 
+                sql_statements.append(create_reserve_invoice(branch_id, guest_count, booking_at, order_at, customer_id)), 
 
         current_date += timedelta(days=1)  
 
     return "\nGO\n\n".join(sql_statements)
 
-def create_offline_order(branch_id, dishes, order_at):
+def create_offline_invoice(branch_id, dishes, order_at):
     sql = [
         "DECLARE @outInvoiceId INT;",
-        f"EXEC dbo.sp_CreateOffOrder  @orderAt = '{order_at}', @branchId = {branch_id}, @outInvoiceId = @outInvoiceId OUTPUT;"
+        f"EXEC dbo.sp_CreateOffInvoice  @orderAt = '{order_at}', @branchId = {branch_id}, @outInvoiceId = @outInvoiceId OUTPUT;"
     ]
     sql.extend(add_dish_details("@outInvoiceId", dishes))
-    sql.append(f"EXEC dbo.sp_SubmitOrder @invoiceId = @outInvoiceId;")
-    sql.append(f"EXEC dbo.sp_PayOrder @invoiceId = @outInvoiceId;")
+    sql.append(f"EXEC dbo.sp_SubmitInvoice @invoiceId = @outInvoiceId;")
+    sql.append(f"EXEC dbo.sp_PayInvoice @invoiceId = @outInvoiceId;")
     return "\n".join(sql)
 
-def create_online_order(phone, address, distance_km, branch_id, customer_id, online_dishes, order_at):
+def create_online_invoice(phone, address, distance_km, branch_id, customer_id, online_dishes, order_at):
     sql = [
         "DECLARE @invoiceId INT;",
-        f"EXEC dbo.sp_CreateOnlineOrder  @phone = '{phone}', @address = N'{address}', @orderAt = '{order_at}', @distanceKm = {distance_km}, @branchId = {branch_id}, @customerId = {customer_id}, @invoiceId = @invoiceId OUTPUT;"
+        f"EXEC dbo.sp_CreateOnlineInvoice  @phone = '{phone}', @address = N'{address}', @orderAt = '{order_at}', @distanceKm = {distance_km}, @branchId = {branch_id}, @customerId = {customer_id}, @invoiceId = @invoiceId OUTPUT;"
     ]
     sql.extend(add_dish_details("@invoiceId", online_dishes))
-    sql.append(f"EXEC dbo.sp_SubmitOrder @invoiceId = @invoiceId;")
-    sql.append(f"EXEC dbo.sp_PayOrder @invoiceId = @invoiceId;")
+    sql.append(f"EXEC dbo.sp_SubmitInvoice @invoiceId = @invoiceId;")
+    sql.append(f"EXEC dbo.sp_PayInvoice @invoiceId = @invoiceId;")
     return "\n".join(sql)
 
-def create_reserve_order(branch_id, guest_count, booking_at, order_at, customer_id):
+def create_reserve_invoice(branch_id, guest_count, booking_at, order_at, customer_id):
     sql = [
         "DECLARE @invoiceId INT;",
-        f"EXEC dbo.sp_CreateReserveOrder  @branchId = {branch_id}, @orderAt = '{order_at}', @guestCount = {guest_count}, @bookingAt = '{booking_at}', @customerId = {customer_id}, @invoiceId = @invoiceId OUTPUT;\n"
+        f"EXEC dbo.sp_CreateReserveInvoice  @branchId = {branch_id}, @orderAt = '{order_at}', @guestCount = {guest_count}, @bookingAt = '{booking_at}', @customerId = {customer_id}, @invoiceId = @invoiceId OUTPUT;\n"
         "DECLARE @outInvoiceId INT;",
-        f"EXEC dbo.sp_CreateOffOrder  @invoiceId = @invoiceId, @outInvoiceId = @outInvoiceId OUTPUT;"
+        f"EXEC dbo.sp_CreateOffInvoice  @invoiceId = @invoiceId, @outInvoiceId = @outInvoiceId OUTPUT;"
     ]
     sql.extend(add_dish_details("@outInvoiceId", dishes))
-    sql.append(f"EXEC dbo.sp_SubmitOrder @invoiceId = @outInvoiceId;")
-    sql.append(f"EXEC dbo.sp_PayOrder @invoiceId = @outInvoiceId;")
+    sql.append(f"EXEC dbo.sp_SubmitInvoice @invoiceId = @outInvoiceId;")
+    sql.append(f"EXEC dbo.sp_PayInvoice @invoiceId = @outInvoiceId;")
     return "\n".join(sql)
 
 def add_dish_details(invoice_id_var, dishes):
