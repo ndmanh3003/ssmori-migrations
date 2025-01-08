@@ -29,7 +29,7 @@ def generate_invoices(start_month: str, end_month: str):
         
         with open(output_file, "a", encoding="utf-8") as outfile:
             
-            outfile.write("USE [SSMORI] \nGO \nALTER TABLE StaticsRevenueDate DISABLE TRIGGER ALL; \nALTER TABLE Invoice NOCHECK CONSTRAINT ALL; \nALTER TABLE InvoiceDetail NOCHECK CONSTRAINT ALL; \nALTER TABLE InvoiceReserve NOCHECK CONSTRAINT ALL; \nALTER TABLE InvoiceOnline NOCHECK CONSTRAINT ALL; \nALTER TABLE StaticsRevenueDate NOCHECK CONSTRAINT ALL; \nALTER TABLE StaticsDishMonth NOCHECK CONSTRAINT ALL; \nALTER TABLE StaticsRevenueMonth NOCHECK CONSTRAINT ALL;\nGO\n")
+            outfile.write("USE [SSMORI]\nGO\nALTER TABLE StaticsRevenueDate DISABLE TRIGGER ALL;\nALTER TABLE Invoice NOCHECK CONSTRAINT ALL;\nALTER TABLE InvoiceDetail NOCHECK CONSTRAINT ALL;\nALTER TABLE InvoiceReserve NOCHECK CONSTRAINT ALL;\nALTER TABLE InvoiceOnline NOCHECK CONSTRAINT ALL;\nALTER TABLE StaticsRevenueDate NOCHECK CONSTRAINT ALL;\nALTER TABLE StaticsDishMonth NOCHECK CONSTRAINT ALL;\nALTER TABLE StaticsRevenueMonth NOCHECK CONSTRAINT ALL;\nGO\n")
             
             while current_date.year == current_year and current_date <= end_date:
                 month_str = current_date.strftime("%Y-%m")
@@ -63,7 +63,7 @@ def generate_invoices(start_month: str, end_month: str):
                     current_date = datetime(current_year, current_month + 1, 1)
                 current_month = current_date.month
                 
-            outfile.write("ALTER TABLE StaticsRevenueDate ENABLE TRIGGER ALL; \nALTER TABLE Invoice WITH CHECK CHECK CONSTRAINT ALL; \nALTER TABLE InvoiceDetail WITH CHECK CHECK CONSTRAINT ALL; \nALTER TABLE InvoiceReserve WITH CHECK CHECK CONSTRAINT ALL; \nALTER TABLE InvoiceOnline WITH CHECK CHECK CONSTRAINT ALL; \nALTER TABLE StaticsRevenueDate WITH CHECK CHECK CONSTRAINT ALL; \nALTER TABLE StaticsDishMonth WITH CHECK CHECK CONSTRAINT ALL; \nALTER TABLE StaticsRevenueMonth WITH CHECK CHECK CONSTRAINT ALL;\nGO")
+            outfile.write("ALTER TABLE StaticsRevenueDate ENABLE TRIGGER ALL;\nALTER TABLE Invoice WITH CHECK CHECK CONSTRAINT ALL;\nALTER TABLE InvoiceDetail WITH CHECK CHECK CONSTRAINT ALL;\nALTER TABLE InvoiceReserve WITH CHECK CHECK CONSTRAINT ALL;\nALTER TABLE InvoiceOnline WITH CHECK CHECK CONSTRAINT ALL;\nALTER TABLE StaticsRevenueDate WITH CHECK CHECK CONSTRAINT ALL;\nALTER TABLE StaticsDishMonth WITH CHECK CHECK CONSTRAINT ALL;\nALTER TABLE StaticsRevenueMonth WITH CHECK CHECK CONSTRAINT ALL;\nGO")
 
 if __name__ == "__main__":
     start_month = input("Start month (mm/yyyy): ") or "01/2022"

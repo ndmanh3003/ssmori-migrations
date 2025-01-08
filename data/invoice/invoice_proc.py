@@ -11,7 +11,7 @@ online_dishes = [d for d in dishes if d not in restricted_online_dishes]
 
 customers = list(range(1, 51))
     
-def generate_sql_script(start_at="2024-12-1", end_at="2024-12-30"):
+def generate_sql_script(start_at="2020-1-1", end_at="2020-1-28"):
     start_date = datetime.strptime(start_at, "%Y-%m-%d")
     end_date = datetime.strptime(end_at, "%Y-%m-%d")
 
